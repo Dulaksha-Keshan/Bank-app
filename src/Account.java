@@ -4,7 +4,7 @@ public interface Account {
     void balance();
     void deposit(double amount);
     void withdraw(double amount);
-    boolean transferable (double amount);
+    boolean transferable ();
     void transfer (int accNo , double amount , Account [] accounts);
     void receive(String name, double amount);
 }

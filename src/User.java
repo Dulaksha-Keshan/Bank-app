@@ -1,3 +1,5 @@
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Objects;
 
 public class User {
@@ -5,7 +7,7 @@ public class User {
     private int nationalId ;
     private int age ;
     private GENDER sex ;
-    private Account [] accounts;
+    private List<Account> accounts = new ArrayList<>();
 
 
     public User(String name, Integer nationalId, int age, GENDER sex) {
@@ -19,14 +21,14 @@ public class User {
                 }
                 this.nationalId = nationalId;
                 }
-            else {
-                this.nationalId = nationalId != null ? nationalId : 0;
-            }
-            accounts = new Account[5];
+    }
+
+    public void addAcount(Account acc) {
+        accounts.add(acc);
     }
 
     public void showAccounts (){
-        if(java.util.Arrays.stream(accounts).allMatch(Objects::isNull)){
+        if(accounts.isEmpty()){
             System.out.println("No accounts under this user");
         }
         for(Account a:accounts){

@@ -66,9 +66,9 @@ public class SavingsAccount implements Account{
     }
 
     @Override
-    public boolean transferable(double amount) {
+    public boolean transferable() {
         try {
-            switch (acctype){
+            switch (this.acctype){
                 case SAVINGS, CURRENT -> {
                     return true;
                 }
