@@ -3,16 +3,41 @@ import java.util.Map;
 import java.util.Scanner;
 
 public class Main {
-    Scanner input = new Scanner(System.in);
-    Map <Integer,User> Users = new HashMap<>();
-    Map<Integer,Account> Accounts = new HashMap<>();
+    static Scanner input = new Scanner(System.in);
+    static Map <Integer,User> Users = new HashMap<>();
+    static Map<Integer,Account> Accounts = new HashMap<>();
 
 
     public static void main(String[] args) {
 
+        while (true) {
+
+            System.out.printf("%n************************%nWelcome to the Banking app%n************************%n");
+            System.out.println("1.Register to a new account ");
+            System.out.println("2.Log in to existing account ");
+            System.out.println("0.Exit");
+            int ans = input.nextInt();
+            input.nextLine();
+            switch (ans){
+                case 1:{
+                    registration();
+                    break;
+                }
+                case 2:{
+                    loggingIn();
+                    break;
+                }
+                case 0:
+                    System.out.println("<<<<<<<Exiting>>>>>>>");
+                    return;
+            }
+
+
+
+        }
     }
 
-    public void registration (){
+    public static void registration (){
         System.out.println("Enter the Full Name :");
         String name = input.nextLine();
 
@@ -25,18 +50,18 @@ public class Main {
         input.nextLine();
 
         System.out.println("Enter the Sex(MALE/FEMALE) :");
-        GENDER sex = GENDER.valueOf(input.nextLine().toUpperCase());
+        GENDER sex = GENDER.valueOf(input.nextLine().strip().toUpperCase());
 
         User newUser  = new User(name,id,age,sex);
         Users.put(id,newUser);
         accountCreation(name,id);
     }
 
-     public void accountCreation (String name , Integer id ){
+     public static void accountCreation (String name , Integer id ){
          System.out.println("Chose the account type to create (Savings/Current/Fixed/Child) : ");
          String ans = input.nextLine();
 
-         switch (ans.toLowerCase()){
+         switch (ans.strip().toLowerCase()){
              case "savings" ->{
                  while(true){
                      System.out.println("Initial deposit amount : ");
@@ -58,5 +83,71 @@ public class Main {
          }
      }
 
+    public static void loggingIn() {
+        int accNO ;
+        System.out.println("Enter the account No");
+        accNO = input.nextInt();
+        input.nextLine();
+        if (Accounts.isEmpty() || !Accounts.containsKey(accNO)){
+            System.out.println("No account found.Try again");
+        } else{
+            Account acc = Accounts.get(accNO);
+            loggedIn(acc);
+        }
+    }
 
+    public static void loggedIn(Account acc){
+        double amount;
+        int accNo;
+        int ans;
+        do {
+            System.out.printf("%n1.Check details%n2.Check balance%n3.deposit%n4.Withdraw%n5.Transfer%n0.Exit%n");
+             ans = input.nextInt();
+            input.nextLine();
+            switch (ans){
+                case 1:{
+                    acc.details();
+                    break;
+                }
+                case 2:{
+                    acc.balance();
+                    break;
+                }
+                case 3:{
+                    System.out.println("Enter the amount");
+                    amount = input.nextDouble();
+                    input.nextLine();
+                    acc.deposit(amount);
+                    break;
+                }
+                case 4:{
+                    System.out.println("Enter the amount");
+                    amount = input.nextDouble();
+                    input.nextLine();
+                    acc.withdraw(amount);
+                    break;
+                }
+                case 5:{
+                    if (acc.transferable()) {
+                        System.out.println("Enter the Account No");
+                        accNo = input.nextInt();
+                        input.nextLine();
+
+                        System.out.println("Enter the amount");
+                        amount = input.nextDouble();
+                        input.nextLine();
+
+                        acc.transfer(accNo,amount,Accounts);
+                    }else{
+                        System.out.println("Sorry this account cannot transfer money");
+                    }
+                    break;
+                } default:{
+                    return;
+                }
+
+
+            }
+        }while (true);
+    }
 }

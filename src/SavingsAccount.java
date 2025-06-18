@@ -1,3 +1,5 @@
+
+import java.util.Map;
 import java.util.Random;
 
 public class SavingsAccount implements Account{
@@ -22,12 +24,12 @@ public class SavingsAccount implements Account{
 
     @Override
     public void details() {
-        System.out.printf("Account No: %d%nAccount Name : %s%nNational ID No : %s%nAccount Type : %s%nBalance : %f",this.accNo,this.name,this.nationalId,this.acctype,this.balance);
+        System.out.printf("Account No: %d%nAccount Name : %s%nNational ID No : %s%nAccount Type : %s%nBalance : %.2f %n",this.accNo,this.name,this.nationalId,this.acctype,this.balance);
     }
 
     @Override
     public void balance() {
-        System.out.printf("Your current available balance is : Rs %f",this.balance);
+        System.out.printf("Your current available balance is : Rs %.2f %n",this.balance);
     }
 
     @Override
@@ -35,8 +37,8 @@ public class SavingsAccount implements Account{
         try {
             if (amount >= 0) {
                 balance += amount;
-                System.out.printf("Successfully deposited Rs %f%n",amount);
-                System.out.printf("Your current available balance is : Rs %f",this.balance);
+                System.out.printf("Successfully deposited Rs %2f%n",amount);
+                System.out.printf("Your current available balance is : Rs %2f",this.balance);
             }else{
                 System.out.println("Invalid amount");
             }
@@ -51,8 +53,8 @@ public class SavingsAccount implements Account{
         try {
             if (amount >= 0 && amount<= this.balance) {
                 balance -= amount;
-                System.out.printf("Successfully withdrew Rs %f%n",amount);
-                System.out.printf("Your current available balance is : Rs %f",this.balance);
+                System.out.printf("Successfully withdrew Rs %2f%n",amount);
+                System.out.printf("Your current available balance is : Rs %2f",this.balance);
 
             } else if (amount>this.balance) {
                 System.out.println("Insufficient Account balance");
@@ -85,29 +87,29 @@ public class SavingsAccount implements Account{
     @Override
     public void receive(String name, double amount) {
         this.balance += amount;
-        System.out.printf("%s successfully received Rs %f from %s ",this.name,amount,name);
+        System.out.printf("%s successfully received Rs %2f from %s%n ",this.name,amount,name);
     }
 
     @Override
-    public void transfer(int accNo, double amount, Account[] accounts) {
+    public void transfer(int accNo, double amount, Map<Integer, Account> accounts) {
 
         try {
-            if (java.util.Arrays.stream(accounts).noneMatch(acc -> acc.getAccNo() == accNo)){
+            if (!accounts.containsKey(accNo)){
                 System.out.println("Invalid account No");
+                return;
+            } else if (amount <= 0 || amount > this.balance ){
+                System.out.println("Transaction failed: Invalid amount or insufficient balance.");
+                return;
+            } else {
+                Account targetAccount = accounts.get(accNo);
 
-            } else if (amount > 0 && amount <= this.balance ){
-                for (Account account : accounts) {
-                    if (account.getAccNo() != accNo) {
-                        continue;
-                    }
-                    this.balance -= amount;
-                    account.receive(this.name, amount);
-                }
-            }else {
-                System.out.println("Transaction failed");
+                this.balance -= amount;
+                targetAccount.receive(this.name, amount);
+                System.out.println("Transfer successful! ");
             }
         } catch (Exception e) {
-            throw new RuntimeException(e);
+            System.err.println("An error occurred during transfer: " + e.getMessage());
+            throw new RuntimeException("Transfer operation failed unexpectedly.", e);
         }
 
     }
