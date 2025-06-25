@@ -1,9 +1,14 @@
+import entity.Account;
+import entity.SavingsAccount;
+import entity.User;
+import enums.GENDER;
+
 import java.util.*;
 
 public class Main {
     static Scanner input = new Scanner(System.in);
-    static Map <Integer,User> Users = new HashMap<>();
-    static Map<Integer,Account> Accounts = new HashMap<>();
+    static Map <Long, User> Users = new HashMap<>();
+    static Map<Integer, Account> Accounts = new HashMap<>();
 
 
     public static void main(String[] args) {
@@ -46,7 +51,7 @@ public class Main {
         input.nextLine();
 
         System.out.println("Enter the National ID No :");
-        Integer id = input.nextInt();
+        Long id = input.nextLong();
         input.nextLine();
 
         System.out.println("Enter the Sex(MALE/FEMALE) :");
@@ -57,7 +62,7 @@ public class Main {
         accountCreation(name,id);
     }
 
-     public static void accountCreation (String name , Integer id ){
+    public static void accountCreation (String name , Long id ){
          System.out.println("Chose the account type to create (Savings/Current/Fixed/Child) : ");
          String ans = input.nextLine();
 
@@ -69,7 +74,7 @@ public class Main {
                      if (amount>0){
                          Account newAcc = new SavingsAccount(name,id,amount);
                          Accounts.put(newAcc.getAccNo(), newAcc);
-                         Users.get(id).addAcount(newAcc);
+                         Users.get(id).addAccount(newAcc);
                          newAcc.details();
                          break;
                      }
@@ -140,7 +145,7 @@ public class Main {
                     }
                     case 5:{
                         if (acc.transferable()) {
-                            System.out.println("Enter the Account No");
+                            System.out.println("Enter the entity.Account No");
                             accNo = input.nextInt();
                             input.nextLine();
 

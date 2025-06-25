@@ -1,29 +1,32 @@
+package entity;
+
+import enums.GENDER;
+
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Objects;
 
 public class User {
     private String name ;
-    private int nationalId ;
+    private long nationalId ;
     private int age ;
     private GENDER sex ;
     private List<Account> accounts = new ArrayList<>();
 
 
-    public User(String name, Integer nationalId, int age, GENDER sex) {
+    public User(String name, Long nationalId, int age, GENDER sex) {
             this.name = name;
             this.age = age;
             this.sex = sex;
 
             if (age>=18){
                 if(nationalId == null){
-                    throw new IllegalArgumentException("National ID required For the User ");
+                    throw new IllegalArgumentException("National ID required For the entity.User ");
                 }
                 this.nationalId = nationalId;
                 }
     }
 
-    public void addAcount(Account acc) {
+    public void addAccount(Account acc) {
         accounts.add(acc);
     }
 

@@ -1,21 +1,24 @@
+package entity;
+
+import enums.ACCTYPE;
 
 import java.util.Map;
 import java.util.Random;
 
-public class SavingsAccount implements Account{
+public class SavingsAccount implements Account {
     private int accNo;
     private String name;
-    private int nationalId;
+    private long nationalId;
     private double balance;
-    private final ACCTYPE  acctype = ACCTYPE.SAVINGS;
+    private final ACCTYPE acctype = ACCTYPE.SAVINGS;
 
-    public SavingsAccount(String name, int nationalId, double balance) {
+    public SavingsAccount(String name, long nationalId, double balance) {
         this.name = name;
         this.nationalId = nationalId;
         this.balance = balance;
 
         Random random = new Random();
-        this.accNo = random.nextInt(100000,500000);
+        this.accNo = random.nextInt(100000,300000);
     }
 
     public int getAccNo() {
@@ -24,7 +27,7 @@ public class SavingsAccount implements Account{
 
     @Override
     public void details() {
-        System.out.printf("Account No: %d%nAccount Name : %s%nNational ID No : %s%nAccount Type : %s%nBalance : %.2f %n",this.accNo,this.name,this.nationalId,this.acctype,this.balance);
+        System.out.printf("entity.Account No: %d%nAccount Name : %s%nNational ID No : %s%nAccount Type : %s%nBalance : %.2f %n",this.accNo,this.name,this.nationalId,this.acctype,this.balance);
     }
 
     @Override
@@ -57,7 +60,7 @@ public class SavingsAccount implements Account{
                 System.out.printf("Your current available balance is : Rs %2f",this.balance);
 
             } else if (amount>this.balance) {
-                System.out.println("Insufficient Account balance");
+                System.out.println("Insufficient entity.Account balance");
 
             }else{
                 System.out.println("Invalid amount");
@@ -71,10 +74,10 @@ public class SavingsAccount implements Account{
     public boolean transferable() {
         try {
             switch (this.acctype){
-                case SAVINGS, CURRENT -> {
+                case ACCTYPE.SAVINGS, ACCTYPE.CURRENT -> {
                     return true;
                 }
-                case CHILD ,FIXED-> {
+                case ACCTYPE.CHILD , ACCTYPE.FIXED-> {
                     return false;
                 }
             }
@@ -113,8 +116,5 @@ public class SavingsAccount implements Account{
         }
 
     }
-
-
-
 
 }
