@@ -41,6 +41,32 @@ public class User {
         }
     }
 
+    public String getName() {
+        return name;
+    }
+
+    public long getNationalId() {
+        return nationalId;
+    }
+
+    public int getAge() {
+        return age;
+    }
+
+    public String getSex() {
+        return sex.name();
+    }
+
+    @Override
+    public String toString() {
+        return "User{" +
+                "name='" + name + '\'' +
+                ", nationalId=" + nationalId +
+                ", age=" + age +
+                ", sex=" + sex +
+                ", accounts=" + accounts +
+                '}';
+    }
 }
 
 

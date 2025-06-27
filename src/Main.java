@@ -1,3 +1,4 @@
+import data.dao.UserDao;
 import entity.Account;
 import entity.SavingsAccount;
 import entity.User;
@@ -9,6 +10,7 @@ public class Main {
     static Scanner input = new Scanner(System.in);
     static Map <Long, User> Users = new HashMap<>();
     static Map<Integer, Account> Accounts = new HashMap<>();
+    static UserDao userDao = new UserDao();
 
 
     public static void main(String[] args) {
@@ -40,6 +42,7 @@ public class Main {
         } catch (Exception e) {
             System.out.println("Error at main menu " + e);
         }
+
     }
 
     public static void registration (){
