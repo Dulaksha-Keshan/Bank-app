@@ -16,7 +16,7 @@ public class UserDao implements Dao<User,Long>{
     private static final Logger LOGGER = Logger.getLogger(UserDao.class.getName());
     private static final String GET_ALL = "select national_id,name,age,gender from public.user";
     private static final String GET_ONE = "select national_id,name,age,gender from public.user where national_id = ?";
-    private static final String CREATE = "insert into public.user (national_id,name,age,gender) values(?,?,?,?)";
+    private static final String CREATE = "insert into public.user (national_id,name,age,gender) values(?,?,?,?::\"GENDER\")";
     private static final String DELETE = "delete from public.user where national_id = ?";
     private static final String UPDATE = "update public.user set name=? where national_id = ?";
 
@@ -64,11 +64,13 @@ public class UserDao implements Dao<User,Long>{
     public Optional<User> getOne(Long nationalId) {
 
         Connection connection = DatabaseUtils.getConnection();
+        Map<Long,User> users = new HashMap<>();
 
         try(PreparedStatement statement = connection.prepareStatement(GET_ONE)){
             statement.setLong(1,nationalId);
             ResultSet rs = statement.executeQuery();
-            Map<Long,User> users = new HashMap<>(this.processResultset(rs));
+
+            users = this.processResultset(rs);
             if(users.isEmpty()){
                 return Optional.empty();
             }

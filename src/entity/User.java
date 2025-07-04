@@ -46,15 +46,15 @@ public class User {
     }
 
     public long getNationalId() {
-        return nationalId;
+        return this.nationalId;
     }
 
     public int getAge() {
-        return age;
+        return this.age;
     }
 
     public String getSex() {
-        return sex.name();
+        return this.sex.name();
     }
 
     @Override

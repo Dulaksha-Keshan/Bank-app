@@ -1,11 +1,16 @@
 package entity;
 
+import enums.ACCTYPE;
+
 import java.util.Map;
 
 public interface Account {
     void details ();
     int getAccNo ();
-    void balance();
+    long getNationalId();
+    String getAccountType();
+    String getName();
+    double balance();
     void deposit(double amount);
     void withdraw(double amount);
     boolean transferable ();

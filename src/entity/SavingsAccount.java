@@ -33,15 +33,19 @@ public class SavingsAccount implements Account {
         return accNo;
     }
 
+    public long getNationalId() {return nationalId;}
+
+    public String getAccountType() {return this.acctype.name();
+    }
+    public String getName(){return this.name;}
+
     @Override
     public void details() {
         System.out.printf("Account No: %d%nAccount Name : %s%nNational ID No : %s%nAccount Type : %s%nBalance : %.2f %n",this.accNo,this.name,this.nationalId,this.acctype,this.balance);
     }
 
     @Override
-    public void balance() {
-        System.out.printf("Your current available balance is : Rs %.2f %n",this.balance);
-    }
+    public double balance() {return this.balance;}
 
     @Override
     public void deposit(double amount) {
@@ -124,5 +128,6 @@ public class SavingsAccount implements Account {
         }
 
     }
+
 
 }

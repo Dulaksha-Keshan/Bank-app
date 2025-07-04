@@ -1,3 +1,4 @@
+import data.dao.AccountDao;
 import data.dao.UserDao;
 import entity.Account;
 import entity.SavingsAccount;
@@ -11,6 +12,7 @@ public class Main {
     static Map <Long, User> Users = new HashMap<>();
     static Map<Integer, Account> Accounts = new HashMap<>();
     static UserDao userDao = new UserDao();
+    static AccountDao accountDao = new AccountDao();
 
     public static void main(String[] args) {
 
@@ -18,19 +20,39 @@ public class Main {
             while (true) {
                 System.out.printf("%n************************%nWelcome to the Banking app%n************************%n");
                 System.out.println("1.Register to a new account ");
-                System.out.println("2.Log in to existing account ");
+                System.out.println("2.Create an new account if an existing user ");
+                System.out.println("3.Log in to existing account ");
                 System.out.println("0.Exit");
                 String ans = input.nextLine().strip();
                 switch (ans){
                     case "1":{
                         registration();
                         break;
+                    } case "2":{
+                        Users = userDao.getAll();
+                        System.out.println("Enter the National Id ");
+                        Long id = input.nextLong();
+                        input.nextLine();
+                        if(Users.isEmpty() || !Users.containsKey(id)){
+                            System.out.println("User does not exist or invalid National ID");
+                            break;
+                        }
+                        System.out.println("Confirm Name(Yes?No)");
+                        String name = Users.get(id).getName();
+                        System.out.println(name);
+                        String confirm = input.nextLine().strip().toLowerCase();
+                        if (confirm.equals("yes")){
+                            accountCreation(name,id);
+                            break;
+                        } else{
+                            System.out.println("User is not found or invalid input");
+                            break;
+                        }
                     }
-                    case "2":{
+                    case "3":{
                         loggingIn();
                         break;
-                    }
-                    case "0":
+                    } case "0":
                         System.out.println("<<<<<<<Exiting>>>>>>>");
                         return;
                     default:{
@@ -60,8 +82,8 @@ public class Main {
         GENDER sex = GENDER.valueOf(input.nextLine().strip().toUpperCase());
 
         User newUser  = new User(name,id,age,sex);
-        Users.put(id,newUser);
         userDao.create(newUser);
+        Users = userDao.getAll();
         accountCreation(name,id);
     }
 
@@ -77,7 +99,7 @@ public class Main {
                      input.nextLine();
                      if (amount>0){
                          Account newAcc = new SavingsAccount(name,id,amount);
-                         Accounts.put(newAcc.getAccNo(), newAcc);
+                         accountDao.create(newAcc);
                          Users.get(id).addAccount(newAcc);
                          newAcc.details();
                          break;
@@ -96,6 +118,7 @@ public class Main {
     public static void loggingIn() {
         try {
             int accNO ;
+            Accounts = accountDao.getAll();
             System.out.println("Enter the account No");
             accNO = input.nextInt();
             input.nextLine();
@@ -131,7 +154,7 @@ public class Main {
                         break;
                     }
                     case 2:{
-                        acc.balance();
+                        System.out.printf("Your current account balance is %.2f %n",acc.balance());
                         break;
                     }
                     case 3:{
@@ -150,7 +173,7 @@ public class Main {
                     }
                     case 5:{
                         if (acc.transferable()) {
-                            System.out.println("Enter the entity.Account No");
+                            System.out.println("Enter the Account No");
                             accNo = input.nextInt();
                             input.nextLine();
 

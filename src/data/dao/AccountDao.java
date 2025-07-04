@@ -1,41 +1,126 @@
 package data.dao;
 
+import data.util.DatabaseUtils;
 import entity.Account;
 import entity.SavingsAccount;
-import entity.User;
 import enums.ACCTYPE;
-import enums.GENDER;
 
-import java.sql.ResultSet;
-import java.sql.SQLException;
+
+import java.sql.*;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Optional;
+import java.util.logging.Logger;
 
 public class AccountDao implements Dao<Account,Integer> {
+    private static final Logger  LOGGER = Logger.getLogger(AccountDao.class.getName());
+    private static final String  GET_ALL = "select acc_no,national_id,name,balance,account_type from public.account";
+    private static final String  CREATE = "insert into public.account (acc_no,name,national_id, account_type, balance) select ? as acc_no,?,?, ?::\"ACCTYPE\" as account_type,? as balance from public.user u where u.national_id = ?";
+    private static final String  GET_ONE = "select acc_no,national_id,balance,account_type from public.account where acc_no =?";
+    private static final String  UPDATE = "update public.account set balance = ? where acc_no = ?";
+    private static final String  DELETE = "delete from public.account where acc_no = ?";
+
     @Override
     public Map<Integer, Account> getAll() {
-        return Map.of();
+        Map<Integer, Account> accounts = new HashMap<>();
+        try(Statement statement = data.util.DatabaseUtils.getConnection().createStatement()){
+            ResultSet rs = statement.executeQuery(GET_ALL);
+            accounts = this.processResultset(rs);
+
+        } catch (SQLException e) {
+            DatabaseUtils.handleSQLexception("AccountDao.getAll",e,LOGGER);
+        }
+        return accounts;
     }
 
     @Override
     public Account create(Account entity) {
+        Connection connection = data.util.DatabaseUtils.getConnection();
+        try {
+            connection.setAutoCommit(false);
+            PreparedStatement statement = connection.prepareStatement(CREATE);
+            statement.setInt(1, entity.getAccNo());
+            statement.setString(2,entity.getName());
+            statement.setLong(3, entity.getNationalId());
+            statement.setString(4, entity.getAccountType());
+            statement.setDouble(5, entity.balance());
+            statement.setLong(6, entity.getNationalId());
+            statement.execute();
+            connection.commit();
+            statement.close();
+            System.out.println("Account successfully created");
+
+        } catch (SQLException e) {
+            try {
+                connection.rollback();
+            } catch (SQLException sqle) {
+                DatabaseUtils.handleSQLexception("AccountDao.create.rollback", sqle, LOGGER);
+            }
+            DatabaseUtils.handleSQLexception("AccountDao.create", e, LOGGER);
+        }
         return null;
     }
 
+
     @Override
-    public Optional<Account> getOne(Integer integer) {
+    public Optional<Account> getOne(Integer accNo) {
+        Map<Integer,Account> accounts = new HashMap<>();
+
+        try( PreparedStatement statement = data.util.DatabaseUtils.getConnection().prepareStatement(GET_ONE)){
+            statement.setInt(1,accNo);
+            ResultSet rs = statement.executeQuery();
+            accounts = this.processResultset(rs);
+            if (accounts.isEmpty()){
+                return Optional.empty();
+            }
+            return  Optional.of(accounts.get(accNo));
+        } catch (SQLException e) {
+            DatabaseUtils.handleSQLexception("AccountDao.getOne",e,LOGGER);
+        }
         return Optional.empty();
     }
 
     @Override
     public Account update(Account entity) {
-        return null;
+        Connection connection = data.util.DatabaseUtils.getConnection();
+
+        try(PreparedStatement statement  = connection.prepareStatement(UPDATE)){
+            connection.setAutoCommit(false);
+            statement.setDouble(1,entity.balance());
+            statement.setInt(2,entity.getAccNo());
+            statement.execute();
+            connection.commit();
+
+        }catch (SQLException e){
+            try {
+                connection.rollback();
+            } catch (SQLException sqle) {
+                DatabaseUtils.handleSQLexception("AccountDao.update.rollback",sqle,LOGGER);
+
+            }
+            DatabaseUtils.handleSQLexception("AccountDao.update",e,LOGGER);
+        }
+        return this.getOne(entity.getAccNo()).get();
+
     }
 
     @Override
-    public void delete(Integer integer) {
+    public void delete(Integer acc_no) {
+        Connection connection = data.util.DatabaseUtils.getConnection();
+        try(PreparedStatement statement = connection.prepareStatement(DELETE)){
+            connection.setAutoCommit(false);
+            statement.setInt(1,acc_no);
+            statement.execute();
+            connection.commit();
+        }catch (SQLException e){
+            try {
+                connection.rollback();
+            } catch (SQLException sqle) {
+                DatabaseUtils.handleSQLexception("AccountDao.delete.rollback",sqle,LOGGER);
 
+            }
+            DatabaseUtils.handleSQLexception("AccountDao.delete",e,LOGGER);
+        }
     }
 
     private Map<Integer,Account>processResultset(ResultSet rs) throws SQLException {
