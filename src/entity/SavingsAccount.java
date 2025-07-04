@@ -12,6 +12,14 @@ public class SavingsAccount implements Account {
     private double balance;
     private final ACCTYPE acctype = ACCTYPE.SAVINGS;
 
+    public SavingsAccount(int accNo ,String name, long nationalId, double balance) {
+        this.accNo = accNo;
+        this.name = name;
+        this.nationalId = nationalId;
+        this.balance = balance;
+
+    }
+
     public SavingsAccount(String name, long nationalId, double balance) {
         this.name = name;
         this.nationalId = nationalId;
@@ -27,7 +35,7 @@ public class SavingsAccount implements Account {
 
     @Override
     public void details() {
-        System.out.printf("entity.Account No: %d%nAccount Name : %s%nNational ID No : %s%nAccount Type : %s%nBalance : %.2f %n",this.accNo,this.name,this.nationalId,this.acctype,this.balance);
+        System.out.printf("Account No: %d%nAccount Name : %s%nNational ID No : %s%nAccount Type : %s%nBalance : %.2f %n",this.accNo,this.name,this.nationalId,this.acctype,this.balance);
     }
 
     @Override
@@ -40,8 +48,8 @@ public class SavingsAccount implements Account {
         try {
             if (amount >= 0) {
                 balance += amount;
-                System.out.printf("Successfully deposited Rs %2f%n",amount);
-                System.out.printf("Your current available balance is : Rs %2f",this.balance);
+                System.out.printf("Successfully deposited Rs %.2f%n",amount);
+                System.out.printf("Your current available balance is : Rs %.2f",this.balance);
             }else{
                 System.out.println("Invalid amount");
             }
@@ -56,7 +64,7 @@ public class SavingsAccount implements Account {
         try {
             if (amount >= 0 && amount<= this.balance) {
                 balance -= amount;
-                System.out.printf("Successfully withdrew Rs %2f%n",amount);
+                System.out.printf("Successfully withdrew Rs %.2f%n",amount);
                 System.out.printf("Your current available balance is : Rs %2f",this.balance);
 
             } else if (amount>this.balance) {
@@ -90,7 +98,7 @@ public class SavingsAccount implements Account {
     @Override
     public void receive(String name, double amount) {
         this.balance += amount;
-        System.out.printf("%s successfully received Rs %2f from %s%n ",this.name,amount,name);
+        System.out.printf("%s successfully received Rs %.2f from %s%n ",this.name,amount,name);
     }
 
     @Override

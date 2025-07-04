@@ -12,7 +12,6 @@ public class Main {
     static Map<Integer, Account> Accounts = new HashMap<>();
     static UserDao userDao = new UserDao();
 
-
     public static void main(String[] args) {
 
         try {
@@ -62,6 +61,7 @@ public class Main {
 
         User newUser  = new User(name,id,age,sex);
         Users.put(id,newUser);
+        userDao.create(newUser);
         accountCreation(name,id);
     }
 
@@ -74,6 +74,7 @@ public class Main {
                  while(true){
                      System.out.println("Initial deposit amount : ");
                      double amount = input.nextDouble();
+                     input.nextLine();
                      if (amount>0){
                          Account newAcc = new SavingsAccount(name,id,amount);
                          Accounts.put(newAcc.getAccNo(), newAcc);
@@ -82,6 +83,7 @@ public class Main {
                          break;
                      }
                  }
+                 return;
 
              }
              case "current":{}//to be implemented after current account class

@@ -17,6 +17,8 @@ public class UserDao implements Dao<User,Long>{
     private static final String GET_ALL = "select national_id,name,age,gender from public.user";
     private static final String GET_ONE = "select national_id,name,age,gender from public.user where national_id = ?";
     private static final String CREATE = "insert into public.user (national_id,name,age,gender) values(?,?,?,?)";
+    private static final String DELETE = "delete from public.user where national_id = ?";
+    private static final String UPDATE = "update public.user set name=? where national_id = ?";
 
     @Override
     public Map<Long, User> getAll() {
@@ -46,6 +48,7 @@ public class UserDao implements Dao<User,Long>{
             statement.execute();
             connection.commit();
             statement.close();
+            System.out.println("User successfully Created");
         }catch (SQLException e){
             try {
                 connection.rollback();
@@ -79,12 +82,47 @@ public class UserDao implements Dao<User,Long>{
 
     @Override
     public User update(User entity) {
-        return null;
+        Connection connection = data.util.DatabaseUtils.getConnection();
+        try{
+            connection.setAutoCommit(false);
+            PreparedStatement statement = connection.prepareStatement(UPDATE);
+            statement.setString(1,entity.getName());
+            statement.setLong(2,entity.getNationalId());
+            statement.execute();
+            connection.commit();
+            statement.close();
+
+        }catch (SQLException e){
+            try {
+                connection.rollback();
+            } catch (SQLException sqle) {
+                DatabaseUtils.handleSQLexception("UserDao.update.rollback",sqle,LOGGER);
+
+            }
+            DatabaseUtils.handleSQLexception("UserDao.update",e,LOGGER);
+        }
+        return this.getOne(entity.getNationalId()).get();
     }
 
     @Override
     public void delete(Long nationalId) {
+        Connection connection = DatabaseUtils.getConnection();
+        try{
+            connection.setAutoCommit(false);
+            PreparedStatement statement = connection.prepareStatement(DELETE);
+            statement.setLong(1,nationalId);
+            statement.execute();
+            connection.commit();
+            statement.close();
+        }catch (SQLException e){
+            try {
+               connection.rollback();
+            } catch (SQLException sqle) {
+                DatabaseUtils.handleSQLexception("UserDao.delete.rollback",sqle,LOGGER);
 
+            }
+            DatabaseUtils.handleSQLexception("UserDao.delete",e,LOGGER);
+        }
     }
 
     private Map<Long,User>processResultset(ResultSet rs) throws SQLException{
@@ -99,3 +137,4 @@ public class UserDao implements Dao<User,Long>{
         return users;
     }
 }
+
