@@ -53,7 +53,7 @@ public class SavingsAccount implements Account {
             if (amount >= 0) {
                 balance += amount;
                 System.out.printf("Successfully deposited Rs %.2f%n",amount);
-                System.out.printf("Your current available balance is : Rs %.2f",this.balance);
+                System.out.printf("Your current available balance is : Rs %.2f%n",this.balance);
             }else{
                 System.out.println("Invalid amount");
             }
@@ -69,7 +69,7 @@ public class SavingsAccount implements Account {
             if (amount >= 0 && amount<= this.balance) {
                 balance -= amount;
                 System.out.printf("Successfully withdrew Rs %.2f%n",amount);
-                System.out.printf("Your current available balance is : Rs %2f",this.balance);
+                System.out.printf("Your current available balance is : Rs %.2f%n",this.balance);
 
             } else if (amount>this.balance) {
                 System.out.println("Insufficient entity.Account balance");

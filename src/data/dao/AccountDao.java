@@ -16,7 +16,7 @@ public class AccountDao implements Dao<Account,Integer> {
     private static final Logger  LOGGER = Logger.getLogger(AccountDao.class.getName());
     private static final String  GET_ALL = "select acc_no,national_id,name,balance,account_type from public.account";
     private static final String  CREATE = "insert into public.account (acc_no,name,national_id, account_type, balance) select ? as acc_no,?,?, ?::\"ACCTYPE\" as account_type,? as balance from public.user u where u.national_id = ?";
-    private static final String  GET_ONE = "select acc_no,national_id,balance,account_type from public.account where acc_no =?";
+    private static final String  GET_ONE = "select acc_no,national_id,name,balance,account_type from public.account where acc_no =?";
     private static final String  UPDATE = "update public.account set balance = ? where acc_no = ?";
     private static final String  DELETE = "delete from public.account where acc_no = ?";
 

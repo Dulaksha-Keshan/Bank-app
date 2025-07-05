@@ -145,16 +145,29 @@ public class Main {
         int ans;
         do {
             try {
+                System.out.printf("%n%nWelcome Back %5s%n",acc.getName());
                 System.out.printf("%n1.Check details%n2.Check balance%n3.deposit%n4.Withdraw%n5.Transfer%n0.Exit%n");
                 ans = input.nextInt();
                 input.nextLine();
                 switch (ans){
                     case 1:{
                         acc.details();
+                        System.out.println("Do you wish to perform another service ? (Y/N)");
+                        String cont = input.nextLine().strip().toLowerCase();
+                        if (cont.equals("n")) {
+                            System.out.println("Thank you see you again!");
+                            return;
+                        }
                         break;
                     }
                     case 2:{
                         System.out.printf("Your current account balance is %.2f %n",acc.balance());
+                        System.out.println("Do you wish to perform another service ? (Y/N)");
+                        String cont = input.nextLine().strip().toLowerCase();
+                        if (cont.equals("n")) {
+                            System.out.println("Thank you see you again!");
+                            return;
+                        }
                         break;
                     }
                     case 3:{
@@ -162,6 +175,13 @@ public class Main {
                         amount = input.nextDouble();
                         input.nextLine();
                         acc.deposit(amount);
+                        accountDao.update(acc);
+                        System.out.println("Do you wish to perform another service ? (Y/N)");
+                        String cont = input.nextLine().strip().toLowerCase();
+                        if (cont.equals("n")) {
+                            System.out.println("Thank you see you again!");
+                            return;
+                        }
                         break;
                     }
                     case 4:{
@@ -169,6 +189,13 @@ public class Main {
                         amount = input.nextDouble();
                         input.nextLine();
                         acc.withdraw(amount);
+                        accountDao.update(acc);
+                        System.out.println("Do you wish to perform another service ? (Y/N)");
+                        String cont = input.nextLine().strip().toLowerCase();
+                        if (cont.equals("n")) {
+                            System.out.println("Thank you see you again!");
+                            return;
+                        }
                         break;
                     }
                     case 5:{
@@ -182,8 +209,17 @@ public class Main {
                             input.nextLine();
 
                             acc.transfer(accNo,amount,Accounts);
+                            accountDao.update(acc);
+                            accountDao.update(Accounts.get(accNo));
+
                         }else{
-                            System.out.println("Sorry this account cannot transfer money");
+                            System.out.println("Sorry Transfer option is not available for this account ");
+                        }
+                        System.out.println("Do you wish to perform another service ? (Y/N)");
+                        String cont = input.nextLine().strip().toLowerCase();
+                        if (cont.equals("n")) {
+                            System.out.println("Thank you see you again!");
+                            return;
                         }
                         break;
                     } default:{
