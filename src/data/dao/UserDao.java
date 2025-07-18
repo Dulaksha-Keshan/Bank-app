@@ -64,7 +64,7 @@ public class UserDao implements Dao<User,Long>{
     public Optional<User> getOne(Long nationalId) {
 
         Connection connection = DatabaseUtils.getConnection();
-        Map<Long,User> users = new HashMap<>();
+        Map<Long,User> users;
 
         try(PreparedStatement statement = connection.prepareStatement(GET_ONE)){
             statement.setLong(1,nationalId);

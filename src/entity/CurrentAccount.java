@@ -4,40 +4,30 @@ import enums.ACCTYPE;
 
 import java.util.Map;
 import java.util.Random;
+import java.util.Scanner;
 
-public class SavingsAccount implements Account {
+public class CurrentAccount implements Account{
     private int accNo;
     private String name;
     private long nationalId;
     private double balance;
-    private final ACCTYPE acctype = ACCTYPE.SAVINGS;
+    private final ACCTYPE acctype = ACCTYPE.CURRENT;
 
-    public SavingsAccount(int accNo ,String name, long nationalId, double balance) {
-        this.accNo = accNo;
-        this.name = name;
-        this.nationalId = nationalId;
+    public CurrentAccount(double balance, long nationalId, String name, int accNo) {
         this.balance = balance;
-
+        this.nationalId = nationalId;
+        this.name = name;
+        this.accNo = accNo;
     }
 
-    public SavingsAccount(String name, long nationalId, double balance) {
+    public CurrentAccount(String name, long nationalId, double balance) {
         this.name = name;
         this.nationalId = nationalId;
         this.balance = balance;
 
         Random random = new Random();
-        this.accNo = random.nextInt(100000,299999);
+        this.accNo = random.nextInt(300000,499999);
     }
-
-    public int getAccNo() {
-        return accNo;
-    }
-
-    public long getNationalId() {return nationalId;}
-
-    public String getAccountType() {return this.acctype.name();
-    }
-    public String getName(){return this.name;}
 
     @Override
     public void details() {
@@ -46,7 +36,29 @@ public class SavingsAccount implements Account {
     }
 
     @Override
-    public double balance() {return this.balance;}
+    public int getAccNo() {
+        return this.accNo;
+    }
+
+    @Override
+    public long getNationalId() {
+        return this.nationalId;
+    }
+
+    @Override
+    public String getAccountType() {
+        return this.acctype.name();
+    }
+
+    @Override
+    public String getName() {
+        return this.name;
+    }
+
+    @Override
+    public double balance() {
+        return  this.balance;
+    }
 
     @Override
     public void deposit(double amount) {
@@ -61,7 +73,6 @@ public class SavingsAccount implements Account {
         } catch (Exception e) {
             throw new RuntimeException(e);
         }
-
     }
 
     @Override
@@ -101,13 +112,8 @@ public class SavingsAccount implements Account {
     }
 
     @Override
-    public void receive(String name, double amount) {
-        this.balance += amount;
-        System.out.printf("%s successfully received Rs %.2f from %s%n ",this.name,amount,name);
-    }
-
-    @Override
     public void transfer(int accNo, double amount, Map<Integer, Account> accounts) {
+
 
         try {
             if (!accounts.containsKey(accNo)){
@@ -127,8 +133,11 @@ public class SavingsAccount implements Account {
             System.err.println("An error occurred during transfer: " + e.getMessage());
             throw new RuntimeException("Transfer operation failed unexpectedly.", e);
         }
-
     }
 
-
+    @Override
+    public void receive(String name, double amount) {
+        this.balance += amount;
+        System.out.printf("%s successfully received Rs %.2f from %s%n ",this.name,amount,name);
+    }
 }

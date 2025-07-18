@@ -2,6 +2,7 @@ package data.dao;
 
 import data.util.DatabaseUtils;
 import entity.Account;
+import entity.FixedAccount;
 import entity.SavingsAccount;
 import enums.ACCTYPE;
 
@@ -14,11 +15,12 @@ import java.util.logging.Logger;
 
 public class AccountDao implements Dao<Account,Integer> {
     private static final Logger  LOGGER = Logger.getLogger(AccountDao.class.getName());
-    private static final String  GET_ALL = "select acc_no,national_id,name,balance,account_type from public.account";
+    private static final String  GET_ALL = "select acc_no,national_id,name,balance,account_type,created_at from public.account";
     private static final String  CREATE = "insert into public.account (acc_no,name,national_id, account_type, balance) select ? as acc_no,?,?, ?::\"ACCTYPE\" as account_type,? as balance from public.user u where u.national_id = ?";
-    private static final String  GET_ONE = "select acc_no,national_id,name,balance,account_type from public.account where acc_no =?";
+    private static final String  GET_ONE = "select acc_no,national_id,name,balance,account_type,created_at from public.account where acc_no =?";
     private static final String  UPDATE = "update public.account set balance = ? where acc_no = ?";
     private static final String  DELETE = "delete from public.account where acc_no = ?";
+    private static final String  TIME   = "select created_at from public.account where acc_no =?";
 
     @Override
     public Map<Integer, Account> getAll() {
@@ -135,6 +137,10 @@ public class AccountDao implements Dao<Account,Integer> {
                         break;
 
                     }case ACCTYPE.FIXED -> {
+                        FixedAccount account = new FixedAccount(rs.getInt("acc_no"),rs.getString("name"),rs.getLong("national_id"),rs.getDouble("balance"));
+                        account.setCreated_at(rs.getString("created_at"));
+                        accounts.put(rs.getInt("acc_no"),account);
+
                         break;
 
                     }case ACCTYPE.CURRENT -> {

@@ -1,8 +1,6 @@
 import data.dao.AccountDao;
 import data.dao.UserDao;
-import entity.Account;
-import entity.SavingsAccount;
-import entity.User;
+import entity.*;
 import enums.GENDER;
 
 import java.util.*;
@@ -43,11 +41,10 @@ public class Main {
                         String confirm = input.nextLine().strip().toLowerCase();
                         if (confirm.equals("yes")){
                             accountCreation(name,id);
-                            break;
                         } else{
                             System.out.println("User is not found or invalid input");
-                            break;
                         }
+                        break;
                     }
                     case "3":{
                         loggingIn();
@@ -108,8 +105,35 @@ public class Main {
                  return;
 
              }
-             case "current":{}//to be implemented after current account class
-             case "fixed":{}//to be implemented after fixed account class
+             case "current":{
+                 System.out.println("Initial deposit amount : ");
+                 double amount = input.nextDouble();
+                 input.nextLine();
+                 if (amount>50000){
+                     Account newAcc = new CurrentAccount(name,id,amount);
+                     accountDao.create(newAcc);
+                     Users.get(id).addAccount(newAcc);
+                     newAcc.details();
+                 }else {
+                     System.out.println("Minimum deposit for a current account is 50000.00");
+                 }
+                 break;
+             }
+             case "fixed":{
+                 System.out.println("Current Interest rate : 12.5%");
+                 System.out.println("Initial deposit amount : ");
+                 double amount = input.nextDouble();
+                 input.nextLine();
+                 if (amount>99999){
+                     Account newAcc = new FixedAccount(name,id,amount);
+                     accountDao.create(newAcc);
+                     Users.get(id).addAccount(newAcc);
+                     newAcc.details();
+                 }else {
+                     System.out.println("Minimum deposit for a Fixed account is 100000.00");
+                 }
+                 break;
+             }//to be implemented after fixed account class
              case "child":{}//to be implemented after child account class
              default : System.out.println("Invalid input");
          }
@@ -208,7 +232,7 @@ public class Main {
                             amount = input.nextDouble();
                             input.nextLine();
 
-                            acc.transfer(accNo,amount,Accounts);
+                            acc.transfer(accNo, amount, Accounts);
                             accountDao.update(acc);
                             accountDao.update(Accounts.get(accNo));
 
