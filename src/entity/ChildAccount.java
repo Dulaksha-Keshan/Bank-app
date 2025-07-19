@@ -54,7 +54,7 @@ public class ChildAccount implements Account{
 
     @Override
     public void details() {
-        System.out.printf("Account No: %d%Child Name : %s%nGuardian name : %s%nNational ID No : %s%nAccount Type : %s%nBalance : %.2f %n",
+        System.out.printf("Account No: %d%nChild Name : %s%nGuardian name : %s%nNational ID No : %s%nAccount Type : %s%nBalance : %.2f %n",
                 this.accNo,this.name,this.guardianName,this.guardianNationalId,this.acctype,this.balance);
 
     }
