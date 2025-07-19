@@ -133,8 +133,23 @@ public class Main {
                      System.out.println("Minimum deposit for a Fixed account is 100000.00");
                  }
                  break;
-             }//to be implemented after fixed account class
-             case "child":{}//to be implemented after child account class
+             }
+             case "child":{
+                 System.out.println("Enter the child Name :");
+                 String c_name = input.nextLine();
+                 while(true){
+                     System.out.println("Initial deposit amount : ");
+                     double amount = input.nextDouble();
+                     input.nextLine();
+                     if (amount>0){
+                         Account newAcc = new ChildAccount(c_name,name,id,amount);
+                         accountDao.create(newAcc);
+                         Users.get(id).addAccount(newAcc);
+                         newAcc.details();
+                         break;
+                     }
+                 }
+             }
              default : System.out.println("Invalid input");
          }
      }

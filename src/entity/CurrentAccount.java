@@ -13,7 +13,7 @@ public class CurrentAccount implements Account{
     private double balance;
     private final ACCTYPE acctype = ACCTYPE.CURRENT;
 
-    public CurrentAccount(double balance, long nationalId, String name, int accNo) {
+    public CurrentAccount(int accNo,String name, long nationalId,double balance ) {
         this.balance = balance;
         this.nationalId = nationalId;
         this.name = name;

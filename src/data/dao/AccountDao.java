@@ -1,9 +1,7 @@
 package data.dao;
 
 import data.util.DatabaseUtils;
-import entity.Account;
-import entity.FixedAccount;
-import entity.SavingsAccount;
+import entity.*;
 import enums.ACCTYPE;
 
 
@@ -15,19 +13,24 @@ import java.util.logging.Logger;
 
 public class AccountDao implements Dao<Account,Integer> {
     private static final Logger  LOGGER = Logger.getLogger(AccountDao.class.getName());
-    private static final String  GET_ALL = "select acc_no,national_id,name,balance,account_type,created_at from public.account";
+    private static final String  GET_ALL = "select acc_no,national_id,name,balance,account_type,created_at from public.account where account_type IN ('SAVINGS'::\"ACCTYPE\", \n" +
+            "        'CURRENT'::\"ACCTYPE\",'FIXED'::\"ACCTYPE\")";
     private static final String  CREATE = "insert into public.account (acc_no,name,national_id, account_type, balance) select ? as acc_no,?,?, ?::\"ACCTYPE\" as account_type,? as balance from public.user u where u.national_id = ?";
     private static final String  GET_ONE = "select acc_no,national_id,name,balance,account_type,created_at from public.account where acc_no =?";
     private static final String  UPDATE = "update public.account set balance = ? where acc_no = ?";
     private static final String  DELETE = "delete from public.account where acc_no = ?";
-    private static final String  TIME   = "select created_at from public.account where acc_no =?";
+    private static final String  DEPENDENT_ACC   = "SELECT u.name as g_name,a.national_id,a.name as c_name,a.acc_no as acc_no,a.balance,a.account_type as account_type,a.created_at FROM public.user AS u  \n" +
+            "INNER JOIN account AS a ON u.national_id = a.national_id where a.account_type ='CHILD'::\"ACCTYPE\"";//doubtful about the using joining cause result set has an issue then
+
 
     @Override
     public Map<Integer, Account> getAll() {
         Map<Integer, Account> accounts = new HashMap<>();
-        try(Statement statement = data.util.DatabaseUtils.getConnection().createStatement()){
+        try(Statement statement = data.util.DatabaseUtils.getConnection().createStatement() ; Statement statement2 = data.util.DatabaseUtils.getConnection().createStatement()){
             ResultSet rs = statement.executeQuery(GET_ALL);
             accounts = this.processResultset(rs);
+            ResultSet rs2 = statement2.executeQuery(DEPENDENT_ACC);
+            accounts.putAll(this.processResultset(rs2));
 
         } catch (SQLException e) {
             DatabaseUtils.handleSQLexception("AccountDao.getAll",e,LOGGER);
@@ -107,11 +110,11 @@ public class AccountDao implements Dao<Account,Integer> {
     }
 
     @Override
-    public void delete(Integer acc_no) {
+    public void delete(Integer accNo) {
         Connection connection = data.util.DatabaseUtils.getConnection();
         try(PreparedStatement statement = connection.prepareStatement(DELETE)){
             connection.setAutoCommit(false);
-            statement.setInt(1,acc_no);
+            statement.setInt(1,accNo);
             statement.execute();
             connection.commit();
         }catch (SQLException e){
@@ -124,6 +127,7 @@ public class AccountDao implements Dao<Account,Integer> {
             DatabaseUtils.handleSQLexception("AccountDao.delete",e,LOGGER);
         }
     }
+
 
     private Map<Integer,Account>processResultset(ResultSet rs) throws SQLException {
         Map<Integer,Account> accounts = new HashMap<>();
@@ -144,11 +148,15 @@ public class AccountDao implements Dao<Account,Integer> {
                         break;
 
                     }case ACCTYPE.CURRENT -> {
+                        Account account = new CurrentAccount(rs.getInt("acc_no"),rs.getString("name"),rs.getLong("national_id"),rs.getDouble("balance"));
+                        accounts.put(rs.getInt("acc_no"),account);
                         break;
 
                     }case ACCTYPE.CHILD -> {
+                        ChildAccount account = new ChildAccount(rs.getInt("acc_no"),rs.getString("c_name"),rs.getString("g_name"),rs.getLong("national_id"),rs.getDouble("balance"));
+                        account.setCreated_at(rs.getString("created_at"));
+                        accounts.put(rs.getInt("acc_no"),account);
                         break;
-//TODO the other cases of the switch after creating the sub classes of the accounts
                     }
                 }
             }
