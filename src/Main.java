@@ -109,7 +109,7 @@ public class Main {
                  System.out.println("Initial deposit amount : ");
                  double amount = input.nextDouble();
                  input.nextLine();
-                 if (amount>50000){
+                 if (amount>49999){
                      Account newAcc = new CurrentAccount(name,id,amount);
                      accountDao.create(newAcc);
                      Users.get(id).addAccount(newAcc);
@@ -195,11 +195,15 @@ public class Main {
                         break;
                     }
                     case 3:{
-                        System.out.println("Enter the amount");
-                        amount = input.nextDouble();
-                        input.nextLine();
-                        acc.deposit(amount);
-                        accountDao.update(acc);
+                        if (acc.transferable()) {
+                            System.out.println("Enter the amount");
+                            amount = input.nextDouble();
+                            input.nextLine();
+                            acc.deposit(amount);
+                            accountDao.update(acc);
+                        }else {
+                            acc.deposit(0);
+                        }
                         System.out.println("Do you wish to perform another service ? (Y/N)");
                         String cont = input.nextLine().strip().toLowerCase();
                         if (cont.equals("n")) {
@@ -209,11 +213,15 @@ public class Main {
                         break;
                     }
                     case 4:{
-                        System.out.println("Enter the amount");
-                        amount = input.nextDouble();
-                        input.nextLine();
-                        acc.withdraw(amount);
-                        accountDao.update(acc);
+                        if (acc.transferable()) {
+                            System.out.println("Enter the amount");
+                            amount = input.nextDouble();
+                            input.nextLine();
+                            acc.withdraw(amount);
+                            accountDao.update(acc);
+                        }else {
+                            acc.withdraw(0);
+                        }
                         System.out.println("Do you wish to perform another service ? (Y/N)");
                         String cont = input.nextLine().strip().toLowerCase();
                         if (cont.equals("n")) {

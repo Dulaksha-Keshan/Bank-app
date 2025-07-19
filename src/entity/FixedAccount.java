@@ -2,7 +2,6 @@ package entity;
 
 import enums.ACCTYPE;
 
-import java.sql.Time;
 import java.time.Duration;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
@@ -100,21 +99,32 @@ public class FixedAccount implements Account{
 
     @Override
     public void withdraw(double amount) {
-
+        System.out.println("Sorry this account does not supports withdrawing");
     }
 
     @Override
     public boolean transferable() {
+        try {
+            switch (this.acctype){
+                case ACCTYPE.SAVINGS, ACCTYPE.CURRENT -> {
+                    return true;
+                }
+                case ACCTYPE.CHILD , ACCTYPE.FIXED-> {
+                    return false;
+                }
+            }
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
         return false;
     }
 
     @Override
     public void transfer(int accNo, double amount, Map<Integer, Account> accounts) {
-
+        System.out.println("Sorry this account does not supports transferring");
     }
 
     @Override
     public void receive(String name, double amount) {
-
     }
 }
