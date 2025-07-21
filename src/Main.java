@@ -95,44 +95,83 @@ public class Main {
                      double amount = input.nextDouble();
                      input.nextLine();
                      if (amount>0){
-                         Account newAcc = new SavingsAccount(name,id,amount);
-                         accountDao.create(newAcc);
-                         Users.get(id).addAccount(newAcc);
-                         newAcc.details();
-                         break;
+                         System.out.printf("Amount is %.2f Confirm ? (yes/no)",amount);
+                         if (input.nextLine().strip().equalsIgnoreCase("no")){
+                             System.out.println("Re-enter the amount...");
+                             continue;
+                         }else if(input.nextLine().strip().equalsIgnoreCase("yes")){
+                             Account newAcc = new SavingsAccount(name,id,amount);
+                             accountDao.create(newAcc);
+                             Users.get(id).addAccount(newAcc);
+                             newAcc.details();
+                             break;
+                         }else {
+                             System.out.println("Invalid Input try Again");
+                             continue;
+                         }
+
+                     }else {
+                         System.out.println("Invalid  amount....");
                      }
+                     break;
                  }
                  return;
 
              }
              case "current":{
-                 System.out.println("Initial deposit amount : ");
-                 double amount = input.nextDouble();
-                 input.nextLine();
-                 if (amount>49999){
-                     Account newAcc = new CurrentAccount(name,id,amount);
-                     accountDao.create(newAcc);
-                     Users.get(id).addAccount(newAcc);
-                     newAcc.details();
-                 }else {
-                     System.out.println("Minimum deposit for a current account is 50000.00");
-                 }
-                 break;
+                 while (true){
+                     System.out.println("Initial deposit amount : ");
+                     double amount = input.nextDouble();
+                     input.nextLine();
+                     if (amount>49999){
+                         System.out.printf("Amount is %.2f Confirm ? (yes/no)",amount);
+                         if (input.nextLine().strip().equalsIgnoreCase("no")){
+                             System.out.println("Re-enter the amount...");
+                             continue;
+                         }else if(input.nextLine().strip().equalsIgnoreCase("yes")){
+                             Account newAcc = new CurrentAccount(name,id,amount);
+                             accountDao.create(newAcc);
+                             Users.get(id).addAccount(newAcc);
+                             newAcc.details();
+                             break;
+                         }else {
+                             System.out.println("Invalid Input try Again");
+                             continue;
+                         }
+                     }else {
+                         System.out.println("Minimum deposit for a current account is 50000.00");
+                     }
+                     break;
+                 }return;
+
              }
              case "fixed":{
                  System.out.println("Current Interest rate : 12.5%");
-                 System.out.println("Initial deposit amount : ");
-                 double amount = input.nextDouble();
-                 input.nextLine();
-                 if (amount>99999){
-                     Account newAcc = new FixedAccount(name,id,amount);
-                     accountDao.create(newAcc);
-                     Users.get(id).addAccount(newAcc);
-                     newAcc.details();
-                 }else {
-                     System.out.println("Minimum deposit for a Fixed account is 100000.00");
-                 }
-                 break;
+                 while(true){
+                     System.out.println("Initial deposit amount : ");
+                     double amount = input.nextDouble();
+                     input.nextLine();
+                     if (amount>99999){
+                         System.out.printf("Amount is %.2f Confirm ? (yes/no)",amount);
+                         if (input.nextLine().strip().equalsIgnoreCase("no")){
+                             System.out.println("Re-enter the amount...");
+                             continue;
+                         }else if(input.nextLine().strip().equalsIgnoreCase("yes")){
+                             Account newAcc = new FixedAccount(name,id,amount);
+                             accountDao.create(newAcc);
+                             Users.get(id).addAccount(newAcc);
+                             newAcc.details();
+                             break;
+                         }else {
+                             System.out.println("Invalid Input try Again");
+                             continue;
+                         }
+                     }else {
+                         System.out.println("Minimum deposit for a Fixed account is 100000.00");
+                     }
+                     break;
+                 }return;
+
              }
              case "child":{
                  System.out.println("Enter the child Name :");
@@ -142,13 +181,25 @@ public class Main {
                      double amount = input.nextDouble();
                      input.nextLine();
                      if (amount>0){
-                         Account newAcc = new ChildAccount(c_name,name,id,amount);
-                         accountDao.create(newAcc);
-                         Users.get(id).addAccount(newAcc);
-                         newAcc.details();
-                         break;
+                         System.out.printf("Amount is %.2f Confirm ? (yes/no)",amount);
+                         if (input.nextLine().strip().equalsIgnoreCase("no")){
+                             System.out.println("Re-enter the amount...");
+                             continue;
+                         }else if(input.nextLine().strip().equalsIgnoreCase("yes")){
+                             Account newAcc = new ChildAccount(c_name,name,id,amount);
+                             accountDao.create(newAcc);
+                             Users.get(id).addAccount(newAcc);
+                             newAcc.details();
+                             break;
+                         }else {
+                             System.out.println("Invalid Input try Again");
+                             continue;
+                         }
+                     }else {
+                         System.out.println("Invalid  amount....");
                      }
-                 }
+                     break;
+                 }return;
              }
              default : System.out.println("Invalid input");
          }
