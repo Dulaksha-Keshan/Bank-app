@@ -3,6 +3,7 @@ package data.dao;
 import data.util.DatabaseUtils;
 import entity.User;
 import entity.records.AccountRecord;
+import entity.records.PasswordRecord;
 import enums.ACCTYPE;
 import enums.GENDER;
 
@@ -20,6 +21,8 @@ public class UserDao implements Dao<User,Long>{
     private static final String UPDATE = "update public.user set name=? where national_id = ?";
     private static final String GET_USERS_ACCOUNTS = "select u.national_id , u.name , a.acc_no , a.account_type , a.name as acc_name from public.user as u  \n" +
             "inner join public.account as a on  u.national_id = a.national_id where u.national_id = ? ";
+    private static final String HASHING = "insert into public.user hash,salt values(?,?) where national_id = ?";
+    private static final String RETRIEVE = "select from public.user hash,salt  where national_id = ?";
 
     @Override
     public Map<Long, User> getAll() {
@@ -85,7 +88,7 @@ public class UserDao implements Dao<User,Long>{
 
     @Override
     public User update(User entity) {
-        Connection connection = data.util.DatabaseUtils.getConnection();
+        Connection connection = DatabaseUtils.getConnection();
         try{
             connection.setAutoCommit(false);
             PreparedStatement statement = connection.prepareStatement(UPDATE);
@@ -142,6 +145,43 @@ public class UserDao implements Dao<User,Long>{
         }
 
         return accountRecords;
+    }
+
+    public void storePass( String hash , String salt ,Long id){
+        Connection connection = DatabaseUtils.getConnection();
+        try {
+            connection.setAutoCommit(false);
+            PreparedStatement preparedStatement = connection.prepareStatement(HASHING);
+            preparedStatement.setString(1,hash);
+            preparedStatement.setString(2,salt);
+            preparedStatement.setLong(3,id);
+            preparedStatement.execute();
+            connection.commit();
+            preparedStatement.close();
+        } catch (SQLException e) {
+            try {
+                connection.rollback();
+            } catch (SQLException ex) {
+                DatabaseUtils.handleSQLexception("UserDao.storePass.rollback", ex, LOGGER);
+            }
+            DatabaseUtils.handleSQLexception("UserDao.storePass", e, LOGGER);
+        }
+    }
+
+    public PasswordRecord retrieveHash(Long id ) {
+        PasswordRecord passwordRecord = null;
+        try (PreparedStatement preparedStatement = DatabaseUtils.getConnection().prepareStatement(RETRIEVE)) {
+            preparedStatement.setLong(1,id);
+            ResultSet rs = preparedStatement.executeQuery();
+
+            while (rs.next()) {
+                passwordRecord = new PasswordRecord(rs.getString("hash"), rs.getString("salt"));
+            }
+
+        } catch (SQLException e) {
+            DatabaseUtils.handleSQLexception("UserDao.retrieveHash", e, LOGGER);
+        }
+        return passwordRecord;
     }
 
     private List<AccountRecord> processAccountSet(ResultSet rs) throws SQLException {

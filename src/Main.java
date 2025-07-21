@@ -1,6 +1,12 @@
+import com.password4j.Argon2Function;
+import com.password4j.Hash;
+import com.password4j.Password;
+import com.password4j.types.Argon2;
 import data.dao.AccountDao;
+import data.dao.Dao;
 import data.dao.UserDao;
 import entity.*;
+import entity.records.PasswordRecord;
 import enums.GENDER;
 
 import java.util.*;
@@ -81,6 +87,20 @@ public class Main {
         System.out.println("Enter the National ID No :");
         Long id = input.nextLong();
         input.nextLine();
+
+        while (true){
+            System.out.println("Enter a password");
+            String rawPass = input.nextLine().strip();
+            System.out.println("Confirm the password");
+            String conf = input.nextLine().strip();
+            if (rawPass.equals(conf)&& !rawPass.isBlank()){
+                PasswordRecord passwordRecord = hashCred(rawPass);
+                userDao.storePass(passwordRecord.hash(),passwordRecord.salt(),id);
+                break;
+            }else {
+                System.out.println("Invalid Password try enter a different one");
+            }
+        }
 
         System.out.println("Enter the Sex(MALE/FEMALE) :");
         GENDER sex = GENDER.valueOf(input.nextLine().strip().toUpperCase());
@@ -444,5 +464,19 @@ public class Main {
             }
 
         }while (true);
+    }
+
+    public static PasswordRecord hashCred(String rawPass ){
+        String hashed;
+        String salt;
+
+        Argon2Function argon2Function = Argon2Function.getInstance(8,1,1,32, Argon2.ID);
+
+        Hash hash = Password.hash(rawPass).with(argon2Function);
+
+        hashed = hash.getResult();
+        salt = hash.getSalt();
+        return new PasswordRecord(hashed,salt);
+
     }
 }
