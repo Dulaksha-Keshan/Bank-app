@@ -15,32 +15,39 @@ public class Main {
     public static void main(String[] args) {
 
         try {
+            Accounts = accountDao.getAll();
+            Users = userDao.getAll();
             while (true) {
                 System.out.printf("%n************************%nWelcome to the Banking app%n************************%n");
                 System.out.println("1.Register to a new account ");
-                System.out.println("2.Create an new account if an existing user ");
-                System.out.println("3.Log in to existing account ");
+                System.out.println("2.Log in if an existing user ");
+                System.out.println("3.Log in to existing account directly");
                 System.out.println("0.Exit");
                 String ans = input.nextLine().strip();
                 switch (ans){
                     case "1":{
                         registration();
                         break;
-                    } case "2":{
-                        Users = userDao.getAll();
+                    }
+                    case "2":{
                         System.out.println("Enter the National Id ");
                         Long id = input.nextLong();
                         input.nextLine();
+
                         if(Users.isEmpty() || !Users.containsKey(id)){
                             System.out.println("User does not exist or invalid National ID");
                             break;
                         }
+
                         System.out.println("Confirm Name(Yes?No)");
                         String name = Users.get(id).getName();
                         System.out.println(name);
-                        String confirm = input.nextLine().strip().toLowerCase();
-                        if (confirm.equals("yes")){
-                            accountCreation(name,id);
+
+                        if (input.nextLine().strip().equalsIgnoreCase("yes")){
+                            System.out.printf("%n%nWelcome Back %5s%n",name);
+
+                            userLoggedIn(id,name);
+
                         } else{
                             System.out.println("User is not found or invalid input");
                         }
@@ -102,7 +109,7 @@ public class Main {
                          }else if(input.nextLine().strip().equalsIgnoreCase("yes")){
                              Account newAcc = new SavingsAccount(name,id,amount);
                              accountDao.create(newAcc);
-                             Users.get(id).addAccount(newAcc);
+//                             Users.get(id).addAccount(newAcc);
                              newAcc.details();
                              break;
                          }else {
@@ -131,7 +138,7 @@ public class Main {
                          }else if(input.nextLine().strip().equalsIgnoreCase("yes")){
                              Account newAcc = new CurrentAccount(name,id,amount);
                              accountDao.create(newAcc);
-                             Users.get(id).addAccount(newAcc);
+//                             Users.get(id).addAccount(newAcc);
                              newAcc.details();
                              break;
                          }else {
@@ -159,7 +166,7 @@ public class Main {
                          }else if(input.nextLine().strip().equalsIgnoreCase("yes")){
                              Account newAcc = new FixedAccount(name,id,amount);
                              accountDao.create(newAcc);
-                             Users.get(id).addAccount(newAcc);
+//                             Users.get(id).addAccount(newAcc);
                              newAcc.details();
                              break;
                          }else {
@@ -188,7 +195,7 @@ public class Main {
                          }else if(input.nextLine().strip().equalsIgnoreCase("yes")){
                              Account newAcc = new ChildAccount(c_name,name,id,amount);
                              accountDao.create(newAcc);
-                             Users.get(id).addAccount(newAcc);
+//                             Users.get(id).addAccount(newAcc);
                              newAcc.details();
                              break;
                          }else {
@@ -208,7 +215,6 @@ public class Main {
     public static void loggingIn() {
         try {
             int accNO ;
-            Accounts = accountDao.getAll();
             System.out.println("Enter the account No");
             accNO = input.nextInt();
             input.nextLine();
@@ -329,6 +335,114 @@ public class Main {
             } catch (Exception e) {
                 System.out.println("Error at Logged menu" + e.getMessage());
             }
+        }while (true);
+    }
+
+    public static  void userLoggedIn(Long id , String name){
+        do {
+
+            Users.get(id).setAccounts(userDao.getUsersAccounts(id));
+            System.out.printf("%n1.Check your accounts%n2.Create and account%n3.Update Name%n4.Delete an account%n5.Delete user%n0.Exit%n");
+            int choice = input.nextInt();
+            input.nextLine();
+
+
+            switch (choice) {
+                case 1: {
+                    Users.get(id).showAccounts();
+                    System.out.println("Do you wish to perform another service ? (Y/N)");
+                    String cont = input.nextLine().strip().toLowerCase();
+                    if (cont.equals("n")) {
+                        System.out.println("Logging you out!! Thank you see you again!");
+                        return;
+                    }
+                    break;
+                }
+                case 2: {
+                    accountCreation(name,id);
+                    System.out.println("Do you wish to perform another service ? (Y/N)");
+                    String cont = input.nextLine().strip().toLowerCase();
+                    if (cont.equals("n")) {
+                        System.out.println("Logging you out!! Thank you see you again!");
+                        return;
+                    }
+                    break;
+                }
+                case 3: {
+                    System.out.println("Enter the new name of the account");
+                    name = input.nextLine();
+                    if(name!=null){
+                        Users.get(id).setName(name);
+                        userDao.update(Users.get(id));
+                        System.out.println("Name Successfully changed ");
+
+                    }
+                    System.out.println("Do you wish to perform another service ? (Y/N)");
+                    String cont = input.nextLine().strip().toLowerCase();
+                    if (cont.equals("n")) {
+                        System.out.println("Logging you out!! Thank you see you again!");
+                        return;
+                    }
+                    break;
+                }
+                case 4: {
+                    try{
+                        System.out.println("Enter the Account number");
+                        Account temp = Accounts.get(input.nextInt());
+                        input.nextLine();
+                        temp.details();
+                        System.out.println("Do you wish to delete this account? (yes/no)");
+
+                        String dConf = input.nextLine().strip();
+
+                        if( dConf.equalsIgnoreCase("yes") && (temp.balance() == 0.0)){
+                            accountDao.delete(temp.getAccNo());
+                            System.out.println("Account successfully deleted");
+                        }else if (dConf.equalsIgnoreCase("no")){
+                            break;
+                        }else {
+                            System.out.println("Invalid Account balance or invalid input");
+                        }
+                        System.out.println("Do you wish to perform another service ? (Y/N)");
+                        String cont = input.nextLine().strip().toLowerCase();
+                        if (cont.equals("n")) {
+                            System.out.println("Logging you out!! Thank you see you again!");
+                            return;
+                        }
+                        break;
+
+                    } catch (Exception e) {
+                        throw new RuntimeException(e);
+                    }
+                }
+                case 5: {
+                    System.out.println("Do you wish to delete this user (Yes/No) NOTE : ALl the funds will be lost if the accounts are not handled before deleting ");
+                    System.out.println(Users.get(id));
+                    String dConf = input.nextLine().strip();
+                    if (dConf.equalsIgnoreCase("yes")){
+                        try {
+                            userDao.delete(id);
+                            System.out.println("Thank you for using our service");
+                        } catch (Exception e) {
+                            throw new RuntimeException(e);
+                        }
+                    }else if(dConf.equalsIgnoreCase("no")) {
+                        System.out.println("Do you wish to perform another service ? (Y/N)");
+                        String cont = input.nextLine().strip().toLowerCase();
+                        if (cont.equals("n")) {
+                            System.out.println("Logging you out!! Thank you see you again!");
+                            return;
+                        }
+                        break;
+                    }else {
+                        System.out.println("Invalid Input");
+                    }
+                }
+                default: {
+                    return;
+                }
+            }
+
         }while (true);
     }
 }

@@ -2,13 +2,12 @@ package data.dao;
 
 import data.util.DatabaseUtils;
 import entity.User;
+import entity.records.AccountRecord;
+import enums.ACCTYPE;
 import enums.GENDER;
 
-
 import java.sql.*;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Optional;
+import java.util.*;
 import java.util.logging.Logger;
 
 public class UserDao implements Dao<User,Long>{
@@ -19,6 +18,8 @@ public class UserDao implements Dao<User,Long>{
     private static final String CREATE = "insert into public.user (national_id,name,age,gender) values(?,?,?,?::\"GENDER\")";
     private static final String DELETE = "delete from public.user where national_id = ?";
     private static final String UPDATE = "update public.user set name=? where national_id = ?";
+    private static final String GET_USERS_ACCOUNTS = "select u.national_id , u.name , a.acc_no , a.account_type , a.name as acc_name from public.user as u  \n" +
+            "inner join public.account as a on  u.national_id = a.national_id where u.national_id = ? ";
 
     @Override
     public Map<Long, User> getAll() {
@@ -125,6 +126,34 @@ public class UserDao implements Dao<User,Long>{
             }
             DatabaseUtils.handleSQLexception("UserDao.delete",e,LOGGER);
         }
+    }
+
+
+    public List<AccountRecord> getUsersAccounts(Long id){
+        List<AccountRecord> accountRecords = new ArrayList<>();
+        Connection connection = DatabaseUtils.getConnection();
+
+        try(PreparedStatement statement = connection.prepareStatement(GET_USERS_ACCOUNTS)){
+            statement.setLong(1,id);
+            ResultSet rs = statement.executeQuery();
+            accountRecords = this.processAccountSet(rs);
+        } catch (SQLException e) {
+            DatabaseUtils.handleSQLexception("UserDao.getAll",e,LOGGER);
+        }
+
+        return accountRecords;
+    }
+
+    private List<AccountRecord> processAccountSet(ResultSet rs) throws SQLException {
+        List<AccountRecord> accountRecords = new ArrayList<>();
+        while (rs.next()) {
+            long id = rs.getLong("national_id");
+            if (!rs.wasNull()) {
+                AccountRecord account = new AccountRecord(rs.getInt("acc_no"), id, rs.getString("name"), rs.getString("acc_name"), ACCTYPE.valueOf(rs.getString("account_type")));
+                accountRecords.add(account);
+            }
+        }
+        return accountRecords;
     }
 
     private Map<Long,User>processResultset(ResultSet rs) throws SQLException{
