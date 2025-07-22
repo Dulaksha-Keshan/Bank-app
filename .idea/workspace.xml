@@ -5,12 +5,18 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="10fa1b0a-854a-43e1-920a-187cb5035e19" name="Changes" comment="">
+      <change beforePath="$PROJECT_DIR$/.env" beforeDir="false" afterPath="$PROJECT_DIR$/.env" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/pom.xml" beforeDir="false" afterPath="$PROJECT_DIR$/pom.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/Main.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/Main.java" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/data/dao/AccountDao.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/data/dao/AccountDao.java" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/data/dao/UserDao.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/data/dao/UserDao.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/entity/records/PasswordRecord.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/entity/records/PasswordRecord.java" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/target/classes/Main.class" beforeDir="false" afterPath="$PROJECT_DIR$/target/classes/Main.class" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/target/classes/data/dao/AccountDao$1.class" beforeDir="false" afterPath="$PROJECT_DIR$/target/classes/data/dao/AccountDao$1.class" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/target/classes/data/dao/AccountDao.class" beforeDir="false" afterPath="$PROJECT_DIR$/target/classes/data/dao/AccountDao.class" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/target/classes/data/dao/UserDao.class" beforeDir="false" afterPath="$PROJECT_DIR$/target/classes/data/dao/UserDao.class" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/target/classes/entity/records/PasswordRecord.class" beforeDir="false" afterPath="$PROJECT_DIR$/target/classes/entity/records/PasswordRecord.class" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />

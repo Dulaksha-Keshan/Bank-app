@@ -21,8 +21,8 @@ public class UserDao implements Dao<User,Long>{
     private static final String UPDATE = "update public.user set name=? where national_id = ?";
     private static final String GET_USERS_ACCOUNTS = "select u.national_id , u.name , a.acc_no , a.account_type , a.name as acc_name from public.user as u  \n" +
             "inner join public.account as a on  u.national_id = a.national_id where u.national_id = ? ";
-    private static final String HASHING = "update public.user SET hash = ?, salt = ? WHERE national_id = ?";
-    private static final String RETRIEVE = "select hash,salt from public.user  where national_id = ?";
+    private static final String HASHING = "update public.user SET hash = ? WHERE national_id = ?";
+    private static final String RETRIEVE = "select hash  from public.user  where national_id = ?";
 
     @Override
     public Map<Long, User> getAll() {
@@ -148,16 +148,13 @@ public class UserDao implements Dao<User,Long>{
         return accountRecords;
     }
 
-    public void storePass( String hash , String salt ,Long id){
+    public void storePass( String hash,Long id){
         Connection connection = DatabaseUtils.getConnection();
         try {
             connection.setAutoCommit(false);
             PreparedStatement preparedStatement = connection.prepareStatement(HASHING);
             preparedStatement.setString(1,hash);
-            String cleanedSalt = salt.replaceAll("\\x00", "");
-            //cleaned salt
-            preparedStatement.setString(2,cleanedSalt);
-            preparedStatement.setLong(3,id);
+            preparedStatement.setLong(2,id);
             preparedStatement.execute();
             connection.commit();
             preparedStatement.close();
@@ -178,7 +175,7 @@ public class UserDao implements Dao<User,Long>{
             ResultSet rs = preparedStatement.executeQuery();
 
             while (rs.next()) {
-                passwordRecord = new PasswordRecord(rs.getString("hash"), rs.getString("salt"));
+                passwordRecord = new PasswordRecord(rs.getString("hash"));
             }
 
         } catch (SQLException e) {

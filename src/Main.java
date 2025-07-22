@@ -3,13 +3,15 @@ import com.password4j.Hash;
 import com.password4j.Password;
 import com.password4j.types.Argon2;
 import data.dao.AccountDao;
-import data.dao.Dao;
 import data.dao.UserDao;
 import entity.*;
 import entity.records.PasswordRecord;
 import enums.GENDER;
 
-import java.util.*;
+import java.util.HashMap;
+import java.util.InputMismatchException;
+import java.util.Map;
+import java.util.Scanner;
 
 public class Main {
     static Scanner input = new Scanner(System.in);
@@ -55,9 +57,9 @@ public class Main {
                             String enteredPass = input.nextLine();
                             try {
                                 PasswordRecord passwordRecord = userDao.retrieveHash(id);
-                                System.out.println(passwordRecord);
 
-                                boolean isVerified = verifyLogging(enteredPass,passwordRecord.hash(),passwordRecord.salt());
+
+                                boolean isVerified = verifyLogging(enteredPass,passwordRecord.hash());
 
                                 if (isVerified){
                                     userLoggedIn(id,name);
@@ -117,7 +119,8 @@ public class Main {
 
                 PasswordRecord passwordRecord = hashCred(rawPass);
 
-                userDao.storePass(passwordRecord.hash(),passwordRecord.salt(),id);
+
+                userDao.storePass(passwordRecord.hash(),id);
                 break;
             }else {
                 System.out.println("Invalid Password try enter a different one");
@@ -163,7 +166,7 @@ public class Main {
 
                                  if (rawPass.equals(conf) && aValidPIN){
                                      PasswordRecord passwordRecord = hashCred(rawPass);
-                                     accountDao.storePass(passwordRecord.hash(),passwordRecord.salt(), newAcc.getAccNo());
+                                     accountDao.storePass(passwordRecord.hash(), newAcc.getAccNo());
                                      break;
                                  }else {
                                      System.out.println("Invalid PIN try enter a different one");
@@ -216,7 +219,7 @@ public class Main {
 
                                  if (rawPass.equals(conf) && aValidPIN){
                                      PasswordRecord passwordRecord = hashCred(rawPass);
-                                     accountDao.storePass(passwordRecord.hash(),passwordRecord.salt(), newAcc.getAccNo());
+                                     accountDao.storePass(passwordRecord.hash(), newAcc.getAccNo());
                                      break;
                                  }else {
                                      System.out.println("Invalid PIN try enter a different one");
@@ -268,7 +271,7 @@ public class Main {
 
                                  if (rawPass.equals(conf) && aValidPIN){
                                      PasswordRecord passwordRecord = hashCred(rawPass);
-                                     accountDao.storePass(passwordRecord.hash(),passwordRecord.salt(), newAcc.getAccNo());
+                                     accountDao.storePass(passwordRecord.hash(), newAcc.getAccNo());
                                      break;
                                  }else {
                                      System.out.println("Invalid PIN try enter a different one");
@@ -322,7 +325,7 @@ public class Main {
 
                                  if (rawPass.equals(conf) && aValidPIN){
                                      PasswordRecord passwordRecord = hashCred(rawPass);
-                                     accountDao.storePass(passwordRecord.hash(),passwordRecord.salt(), newAcc.getAccNo());
+                                     accountDao.storePass(passwordRecord.hash(), newAcc.getAccNo());
                                      break;
                                  }else {
                                      System.out.println("Invalid PIN try enter a different one");
@@ -364,7 +367,8 @@ public class Main {
                 try {
                     PasswordRecord passwordRecord = accountDao.retrieveHash(accNO);
 
-                    boolean isVerified = verifyLogging(enteredPin,passwordRecord.hash(),passwordRecord.salt());
+
+                    boolean isVerified = verifyLogging(enteredPin,passwordRecord.hash());
 
                     if (isVerified){
                         Account acc = Accounts.get(accNO);
@@ -603,52 +607,27 @@ public class Main {
 
     public static PasswordRecord hashCred(String rawPass ){
         String hashed;
-        String salt;
 
         Argon2Function argon2Function = Argon2Function.getInstance(8,1,1,32, Argon2.ID);
 
         Hash hash = Password.hash(rawPass).with(argon2Function);
 
         hashed = hash.getResult();
-        salt = hash.getSalt();
-        // --- THE FIX ---
-        // Get the raw salt bytes directly from Password4j
-        byte[] rawSaltBytes = hash.getSaltBytes();
-        // Base64-encode these raw bytes into a clean string for storage
-        String saltStringForStorage = Base64.getEncoder().encodeToString(rawSaltBytes);
-
-        // Still apply null byte removal as a defensive measure, though Base64 shouldn't have them
-//        saltStringForStorage = saltStringForStorage.replaceAll("\\x00", "");
-        // --- END THE FIX ---
-
-        System.out.println("DEBUG (Generated - Cleaned): Hashed: '" + hashed + "'");
-        System.out.println("DEBUG (Generated - Cleaned): Salt:   '" + saltStringForStorage + "'");
-
-        // Verify that the cleaned salt is now valid Base64
-        try {
-            byte[] decodedSalt = Base64.getDecoder().decode(saltStringForStorage);
-            System.out.println("DEBUG (Generated - Cleaned): Salt Decoded Successfully (length: " + decodedSalt.length + ")");
-        } catch (IllegalArgumentException e) {
-            System.err.println("DEBUG (Generated - Cleaned): Salt is STILL NOT a valid Base64 string! This is a serious problem. " + e.getMessage());
-        }
+//
 
 
-        return new PasswordRecord(hashed,salt);
+        return new PasswordRecord(hashed);
 
     }
 
-    public static boolean verifyLogging(String enteredPass,String hash , String salt ){
+    public static boolean verifyLogging(String enteredPass,String hash ){
 
-        if (hash == null || salt == null){
+        if (hash == null ){
             System.out.println("Error retrieving Password");
             return false;
         }
 
-        //TODO remove debugging
-        System.out.println(hash);
-        System.out.println(salt);
-
-        boolean isVerified = Password.check(enteredPass,hash).addSalt(salt).with(Argon2Function.getInstance(8,1,1,32, Argon2.ID));
+        boolean isVerified = Password.check(enteredPass,hash).with(Argon2Function.getInstance(8,1,1,32, Argon2.ID));
         if (isVerified){
             return true ;
         }else {

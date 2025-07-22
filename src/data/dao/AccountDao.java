@@ -22,8 +22,8 @@ public class AccountDao implements Dao<Account,Integer> {
     private static final String  DELETE = "delete from public.account where acc_no = ?";
     private static final String  DEPENDENT_ACC   = "SELECT u.name as g_name,a.national_id,a.name as c_name,a.acc_no as acc_no,a.balance,a.account_type as account_type,a.created_at FROM public.user AS u  \n" +
             "INNER JOIN account AS a ON u.national_id = a.national_id where a.account_type ='CHILD'::\"ACCTYPE\"";//doubtful about the using joining cause result set has an issue then
-    private static final String HASHING = "update public.account SET hash = ?, salt = ? WHERE acc_no = ?";
-    private static final String RETRIEVE = "select hash,salt  from public.account  where acc_no = ?";
+    private static final String HASHING = "update public.account SET hash = ? WHERE acc_no = ?";
+    private static final String RETRIEVE = "select hash  from public.account  where acc_no = ?";
 
     @Override
     public Map<Integer, Account> getAll() {
@@ -131,16 +131,13 @@ public class AccountDao implements Dao<Account,Integer> {
     }
 
 
-    public void storePass( String hash , String salt ,Integer accNo){
+    public void storePass( String hash  ,Integer accNo){
         Connection connection = DatabaseUtils.getConnection();
         try {
             connection.setAutoCommit(false);
             PreparedStatement preparedStatement = connection.prepareStatement(HASHING);
             preparedStatement.setString(1,hash);
-            //Cleaning Salt
-            String cleanedSalt = salt.replaceAll("\\x00", "");
-            preparedStatement.setString(2,cleanedSalt);
-            preparedStatement.setInt(3,accNo);
+            preparedStatement.setInt(2,accNo);
             preparedStatement.execute();
             connection.commit();
             preparedStatement.close();
@@ -161,7 +158,7 @@ public class AccountDao implements Dao<Account,Integer> {
             ResultSet rs = preparedStatement.executeQuery();
 
             if (rs.next()) {
-                passwordRecord = new PasswordRecord(rs.getString("hash"), rs.getString("salt"));
+                passwordRecord = new PasswordRecord(rs.getString("hash"));
 //
             }
 
