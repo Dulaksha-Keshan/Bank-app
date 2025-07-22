@@ -2,6 +2,7 @@ package data.dao;
 
 import data.util.DatabaseUtils;
 import entity.*;
+import entity.records.PasswordRecord;
 import enums.ACCTYPE;
 
 
@@ -21,7 +22,8 @@ public class AccountDao implements Dao<Account,Integer> {
     private static final String  DELETE = "delete from public.account where acc_no = ?";
     private static final String  DEPENDENT_ACC   = "SELECT u.name as g_name,a.national_id,a.name as c_name,a.acc_no as acc_no,a.balance,a.account_type as account_type,a.created_at FROM public.user AS u  \n" +
             "INNER JOIN account AS a ON u.national_id = a.national_id where a.account_type ='CHILD'::\"ACCTYPE\"";//doubtful about the using joining cause result set has an issue then
-    private static final String HASHING = "insert into public.account hash,salt values(?,?) where acc_no = ?";
+    private static final String HASHING = "update public.account SET hash = ?, salt = ? WHERE acc_no = ?";
+    private static final String RETRIEVE = "select hash,salt  from public.account  where acc_no = ?";
 
     @Override
     public Map<Integer, Account> getAll() {
@@ -135,7 +137,9 @@ public class AccountDao implements Dao<Account,Integer> {
             connection.setAutoCommit(false);
             PreparedStatement preparedStatement = connection.prepareStatement(HASHING);
             preparedStatement.setString(1,hash);
-            preparedStatement.setString(2,salt);
+            //Cleaning Salt
+            String cleanedSalt = salt.replaceAll("\\x00", "");
+            preparedStatement.setString(2,cleanedSalt);
             preparedStatement.setInt(3,accNo);
             preparedStatement.execute();
             connection.commit();
@@ -150,6 +154,22 @@ public class AccountDao implements Dao<Account,Integer> {
         }
     }
 
+    public PasswordRecord retrieveHash(Integer accNo ) {
+        PasswordRecord passwordRecord = null;
+        try (PreparedStatement preparedStatement = DatabaseUtils.getConnection().prepareStatement(RETRIEVE)) {
+            preparedStatement.setInt(1,accNo);
+            ResultSet rs = preparedStatement.executeQuery();
+
+            if (rs.next()) {
+                passwordRecord = new PasswordRecord(rs.getString("hash"), rs.getString("salt"));
+//
+            }
+
+        } catch (SQLException e) {
+            DatabaseUtils.handleSQLexception("AccountDao.retrieveHash", e, LOGGER);
+        }
+        return passwordRecord;
+    }
 
     private Map<Integer,Account>processResultset(ResultSet rs) throws SQLException {
         Map<Integer,Account> accounts = new HashMap<>();

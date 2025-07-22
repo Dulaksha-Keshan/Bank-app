@@ -21,9 +21,9 @@ public class Main {
     public static void main(String[] args) {
 
         try {
-            Accounts = accountDao.getAll();
-            Users = userDao.getAll();
             while (true) {
+                Accounts = accountDao.getAll();
+                Users = userDao.getAll();
                 System.out.printf("%n************************%nWelcome to the Banking app%n************************%n");
                 System.out.println("1.Register to a new account ");
                 System.out.println("2.Log in if an existing user ");
@@ -51,8 +51,22 @@ public class Main {
 
                         if (input.nextLine().strip().equalsIgnoreCase("yes")){
                             System.out.printf("%n%nWelcome Back %5s%n",name);
+                            System.out.println("Enter Your password :");
+                            String enteredPass = input.nextLine();
+                            try {
+                                PasswordRecord passwordRecord = userDao.retrieveHash(id);
+                                System.out.println(passwordRecord);
 
-                            userLoggedIn(id,name);
+                                boolean isVerified = verifyLogging(enteredPass,passwordRecord.hash(),passwordRecord.salt());
+
+                                if (isVerified){
+                                    userLoggedIn(id,name);
+                                }else {
+                                    System.out.println("Invalid Password ");
+                                }
+                            }catch (Exception e){
+                                System.out.println("Error at user verification " + e.getMessage());
+                            }
 
                         } else{
                             System.out.println("User is not found or invalid input");
@@ -88,13 +102,21 @@ public class Main {
         Long id = input.nextLong();
         input.nextLine();
 
+        System.out.println("Enter the Sex(MALE/FEMALE) :");
+        GENDER sex = GENDER.valueOf(input.nextLine().strip().toUpperCase());
+
+        User newUser  = new User(name,id,age,sex);
+        userDao.create(newUser);
+
         while (true){
             System.out.println("Enter a password");
             String rawPass = input.nextLine().strip();
             System.out.println("Confirm the password");
             String conf = input.nextLine().strip();
             if (rawPass.equals(conf)&& !rawPass.isBlank()){
+
                 PasswordRecord passwordRecord = hashCred(rawPass);
+
                 userDao.storePass(passwordRecord.hash(),passwordRecord.salt(),id);
                 break;
             }else {
@@ -102,11 +124,6 @@ public class Main {
             }
         }
 
-        System.out.println("Enter the Sex(MALE/FEMALE) :");
-        GENDER sex = GENDER.valueOf(input.nextLine().strip().toUpperCase());
-
-        User newUser  = new User(name,id,age,sex);
-        userDao.create(newUser);
         Users = userDao.getAll();
         accountCreation(name,id);
     }
@@ -121,15 +138,39 @@ public class Main {
                      System.out.println("Initial deposit amount : ");
                      double amount = input.nextDouble();
                      input.nextLine();
+
                      if (amount>0){
-                         System.out.printf("Amount is %.2f Confirm ? (yes/no)",amount);
-                         if (input.nextLine().strip().equalsIgnoreCase("no")){
+                         System.out.printf("Amount is %.2f Confirm ? (yes/no)%n",amount);
+
+                         String con = input.nextLine().strip();
+
+                         if (con.equalsIgnoreCase("no")){
                              System.out.println("Re-enter the amount...");
                              continue;
-                         }else if(input.nextLine().strip().equalsIgnoreCase("yes")){
+
+                         }else if(con.equalsIgnoreCase("yes")){
                              Account newAcc = new SavingsAccount(name,id,amount);
                              accountDao.create(newAcc);
-//                             Users.get(id).addAccount(newAcc);
+
+                             while (true){
+
+                                 System.out.println("Enter a PIN");
+                                 String rawPass = input.nextLine().strip();
+                                 System.out.println("Confirm the PIN");
+                                 String conf = input.nextLine().strip();
+
+                                 boolean aValidPIN = containsOnlyDigits(rawPass);
+
+                                 if (rawPass.equals(conf) && aValidPIN){
+                                     PasswordRecord passwordRecord = hashCred(rawPass);
+                                     accountDao.storePass(passwordRecord.hash(),passwordRecord.salt(), newAcc.getAccNo());
+                                     break;
+                                 }else {
+                                     System.out.println("Invalid PIN try enter a different one");
+                                 }
+
+                             }
+
                              newAcc.details();
                              break;
                          }else {
@@ -146,19 +187,43 @@ public class Main {
 
              }
              case "current":{
-                 while (true){
+                 while(true){
                      System.out.println("Initial deposit amount : ");
                      double amount = input.nextDouble();
                      input.nextLine();
+
                      if (amount>49999){
                          System.out.printf("Amount is %.2f Confirm ? (yes/no)",amount);
-                         if (input.nextLine().strip().equalsIgnoreCase("no")){
+
+                         String con = input.nextLine().strip();
+
+                         if (con.equalsIgnoreCase("no")){
                              System.out.println("Re-enter the amount...");
                              continue;
-                         }else if(input.nextLine().strip().equalsIgnoreCase("yes")){
+
+                         }else if(con.equalsIgnoreCase("yes")){
                              Account newAcc = new CurrentAccount(name,id,amount);
                              accountDao.create(newAcc);
-//                             Users.get(id).addAccount(newAcc);
+
+                             while (true){
+
+                                 System.out.println("Enter a PIN");
+                                 String rawPass = input.nextLine().strip();
+                                 System.out.println("Confirm the PIN");
+                                 String conf = input.nextLine().strip();
+
+                                 boolean aValidPIN = containsOnlyDigits(rawPass);
+
+                                 if (rawPass.equals(conf) && aValidPIN){
+                                     PasswordRecord passwordRecord = hashCred(rawPass);
+                                     accountDao.storePass(passwordRecord.hash(),passwordRecord.salt(), newAcc.getAccNo());
+                                     break;
+                                 }else {
+                                     System.out.println("Invalid PIN try enter a different one");
+                                 }
+
+                             }
+
                              newAcc.details();
                              break;
                          }else {
@@ -178,17 +243,42 @@ public class Main {
                      System.out.println("Initial deposit amount : ");
                      double amount = input.nextDouble();
                      input.nextLine();
+
                      if (amount>99999){
-                         System.out.printf("Amount is %.2f Confirm ? (yes/no)",amount);
-                         if (input.nextLine().strip().equalsIgnoreCase("no")){
+                         System.out.printf("Amount is %.2f Confirm ? (yes/no) %n",amount);
+
+                         String con = input.nextLine().strip();
+
+                         if (con.equalsIgnoreCase("no")){
                              System.out.println("Re-enter the amount...");
                              continue;
-                         }else if(input.nextLine().strip().equalsIgnoreCase("yes")){
+
+                         }else if(con.equalsIgnoreCase("yes")){
                              Account newAcc = new FixedAccount(name,id,amount);
                              accountDao.create(newAcc);
-//                             Users.get(id).addAccount(newAcc);
+
+                             while (true){
+
+                                 System.out.println("Enter a PIN");
+                                 String rawPass = input.nextLine().strip();
+                                 System.out.println("Confirm the PIN");
+                                 String conf = input.nextLine().strip();
+
+                                 boolean aValidPIN = containsOnlyDigits(rawPass);
+
+                                 if (rawPass.equals(conf) && aValidPIN){
+                                     PasswordRecord passwordRecord = hashCred(rawPass);
+                                     accountDao.storePass(passwordRecord.hash(),passwordRecord.salt(), newAcc.getAccNo());
+                                     break;
+                                 }else {
+                                     System.out.println("Invalid PIN try enter a different one");
+                                 }
+
+                             }
+
                              newAcc.details();
                              break;
+
                          }else {
                              System.out.println("Invalid Input try Again");
                              continue;
@@ -197,6 +287,7 @@ public class Main {
                          System.out.println("Minimum deposit for a Fixed account is 100000.00");
                      }
                      break;
+
                  }return;
 
              }
@@ -207,15 +298,38 @@ public class Main {
                      System.out.println("Initial deposit amount : ");
                      double amount = input.nextDouble();
                      input.nextLine();
+
                      if (amount>0){
-                         System.out.printf("Amount is %.2f Confirm ? (yes/no)",amount);
-                         if (input.nextLine().strip().equalsIgnoreCase("no")){
+                         System.out.printf("Amount is %.2f Confirm ? (yes/no) %n",amount);
+
+                         String con = input.nextLine().strip();
+                         if (con.equalsIgnoreCase("no")){
                              System.out.println("Re-enter the amount...");
                              continue;
-                         }else if(input.nextLine().strip().equalsIgnoreCase("yes")){
+
+                         }else if(con.equalsIgnoreCase("yes")){
                              Account newAcc = new ChildAccount(c_name,name,id,amount);
                              accountDao.create(newAcc);
-//                             Users.get(id).addAccount(newAcc);
+
+                             while (true){
+
+                                 System.out.println("Enter a PIN");
+                                 String rawPass = input.nextLine().strip();
+                                 System.out.println("Confirm the PIN");
+                                 String conf = input.nextLine().strip();
+
+                                 boolean aValidPIN = containsOnlyDigits(rawPass);
+
+                                 if (rawPass.equals(conf) && aValidPIN){
+                                     PasswordRecord passwordRecord = hashCred(rawPass);
+                                     accountDao.storePass(passwordRecord.hash(),passwordRecord.salt(), newAcc.getAccNo());
+                                     break;
+                                 }else {
+                                     System.out.println("Invalid PIN try enter a different one");
+                                 }
+
+                             }
+
                              newAcc.details();
                              break;
                          }else {
@@ -238,20 +352,41 @@ public class Main {
             System.out.println("Enter the account No");
             accNO = input.nextInt();
             input.nextLine();
+
             if (Accounts.isEmpty() || !Accounts.containsKey(accNO)){
+
                 throw new IllegalArgumentException("Invalid account Number try again");
+
             } else{
-                Account acc = Accounts.get(accNO);
-                loggedIn(acc);
+                System.out.println("Enter Your PIN :");
+                String enteredPin = input.nextLine();
+
+                try {
+                    PasswordRecord passwordRecord = accountDao.retrieveHash(accNO);
+
+                    boolean isVerified = verifyLogging(enteredPin,passwordRecord.hash(),passwordRecord.salt());
+
+                    if (isVerified){
+                        Account acc = Accounts.get(accNO);
+                        loggedIn(acc);
+                    }else {
+                        System.out.println("Invalid PIN ");
+                    }
+                }catch (Exception e){
+                    System.out.println("Error at PIN verification " + e.getMessage());
+                }
+
             }
             }catch (IllegalArgumentException e) {
                System.out.println(e.getLocalizedMessage());
+
             }catch (InputMismatchException e) {
             input.nextLine();
             System.out.println("Invalid Input");
+
         }catch (Exception e) {
             input.nextLine();
-            System.out.println("Error at Logging Menu "+e);
+            System.out.println("Error at Logging Menu "+ e.getMessage());
         }
     }
 
@@ -476,7 +611,61 @@ public class Main {
 
         hashed = hash.getResult();
         salt = hash.getSalt();
+        // --- THE FIX ---
+        // Get the raw salt bytes directly from Password4j
+        byte[] rawSaltBytes = hash.getSaltBytes();
+        // Base64-encode these raw bytes into a clean string for storage
+        String saltStringForStorage = Base64.getEncoder().encodeToString(rawSaltBytes);
+
+        // Still apply null byte removal as a defensive measure, though Base64 shouldn't have them
+//        saltStringForStorage = saltStringForStorage.replaceAll("\\x00", "");
+        // --- END THE FIX ---
+
+        System.out.println("DEBUG (Generated - Cleaned): Hashed: '" + hashed + "'");
+        System.out.println("DEBUG (Generated - Cleaned): Salt:   '" + saltStringForStorage + "'");
+
+        // Verify that the cleaned salt is now valid Base64
+        try {
+            byte[] decodedSalt = Base64.getDecoder().decode(saltStringForStorage);
+            System.out.println("DEBUG (Generated - Cleaned): Salt Decoded Successfully (length: " + decodedSalt.length + ")");
+        } catch (IllegalArgumentException e) {
+            System.err.println("DEBUG (Generated - Cleaned): Salt is STILL NOT a valid Base64 string! This is a serious problem. " + e.getMessage());
+        }
+
+
         return new PasswordRecord(hashed,salt);
 
+    }
+
+    public static boolean verifyLogging(String enteredPass,String hash , String salt ){
+
+        if (hash == null || salt == null){
+            System.out.println("Error retrieving Password");
+            return false;
+        }
+
+        //TODO remove debugging
+        System.out.println(hash);
+        System.out.println(salt);
+
+        boolean isVerified = Password.check(enteredPass,hash).addSalt(salt).with(Argon2Function.getInstance(8,1,1,32, Argon2.ID));
+        if (isVerified){
+            return true ;
+        }else {
+            System.out.println("Invalid ......");
+            return false;
+        }
+    }
+
+    public static boolean containsOnlyDigits(String str) {
+        if (str == null || str.isEmpty()) {
+            return false;
+        }
+        for (char c : str.toCharArray()) {
+            if (!Character.isDigit(c)) {
+                return false;
+            }
+        }
+        return true;
     }
 }

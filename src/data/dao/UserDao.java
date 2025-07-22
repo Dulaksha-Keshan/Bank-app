@@ -21,8 +21,8 @@ public class UserDao implements Dao<User,Long>{
     private static final String UPDATE = "update public.user set name=? where national_id = ?";
     private static final String GET_USERS_ACCOUNTS = "select u.national_id , u.name , a.acc_no , a.account_type , a.name as acc_name from public.user as u  \n" +
             "inner join public.account as a on  u.national_id = a.national_id where u.national_id = ? ";
-    private static final String HASHING = "insert into public.user hash,salt values(?,?) where national_id = ?";
-    private static final String RETRIEVE = "select from public.user hash,salt  where national_id = ?";
+    private static final String HASHING = "update public.user SET hash = ?, salt = ? WHERE national_id = ?";
+    private static final String RETRIEVE = "select hash,salt from public.user  where national_id = ?";
 
     @Override
     public Map<Long, User> getAll() {
@@ -53,6 +53,7 @@ public class UserDao implements Dao<User,Long>{
             connection.commit();
             statement.close();
             System.out.println("User successfully Created");
+
         }catch (SQLException e){
             try {
                 connection.rollback();
@@ -153,7 +154,9 @@ public class UserDao implements Dao<User,Long>{
             connection.setAutoCommit(false);
             PreparedStatement preparedStatement = connection.prepareStatement(HASHING);
             preparedStatement.setString(1,hash);
-            preparedStatement.setString(2,salt);
+            String cleanedSalt = salt.replaceAll("\\x00", "");
+            //cleaned salt
+            preparedStatement.setString(2,cleanedSalt);
             preparedStatement.setLong(3,id);
             preparedStatement.execute();
             connection.commit();
