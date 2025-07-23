@@ -118,6 +118,7 @@ public class ChildAccount implements Account{
 
     @Override
     public void receive(String name, double amount) {
-
+        this.balance += amount;
+        System.out.printf("%s successfully received Rs %.2f from %s%n ",this.name,amount,name);
     }
 }

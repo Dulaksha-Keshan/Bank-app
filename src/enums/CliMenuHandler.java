@@ -25,75 +25,6 @@ public class CliMenuHandler {
 
     public static void main(String[] args) {
 
-//        try {
-//            while (true) {
-//                Accounts = accountDao.getAll();
-//                Users = userDao.getAll();
-//                System.out.printf("%n************************%nWelcome to the Banking app%n************************%n");
-//                System.out.println("1.Register to a new account ");
-//                System.out.println("2.Log in if an existing user ");
-//                System.out.println("3.Log in to existing account directly");
-//                System.out.println("0.Exit");
-//                String ans = input.nextLine().strip();
-//                switch (ans){
-//                    case "1":{
-//                        registration();
-//                        break;
-//                    }
-//                    case "2":{
-//                        System.out.println("Enter the National Id ");
-//                        Long id = input.nextLong();
-//                        input.nextLine();
-//
-//                        if(Users.isEmpty() || !Users.containsKey(id)){
-//                            System.out.println("User does not exist or invalid National ID");
-//                            break;
-//                        }
-//
-//                        System.out.println("Confirm Name(Yes?No)");
-//                        String name = Users.get(id).getName();
-//                        System.out.println(name);
-//
-//                        if (input.nextLine().strip().equalsIgnoreCase("yes")){
-//                            System.out.printf("%n%nWelcome Back %5s%n",name);
-//                            System.out.println("Enter Your password :");
-//                            String enteredPass = input.nextLine();
-//                            try {
-//                                PasswordRecord passwordRecord = userDao.retrieveHash(id);
-//
-//
-//                                boolean isVerified = verifyLogging(enteredPass,passwordRecord.hash());
-//
-//                                if (isVerified){
-//                                    userLoggedIn(id,name);
-//                                }else {
-//                                    System.out.println("Invalid Password ");
-//                                }
-//                            }catch (Exception e){
-//                                System.out.println("Error at user verification " + e.getMessage());
-//                            }
-//
-//                        } else{
-//                            System.out.println("User is not found or invalid input");
-//                        }
-//                        break;
-//                    }
-//                    case "3":{
-//                        loggingIn();
-//                        break;
-//                    }
-//                    case "0":{
-//                        System.out.println("<<<<<<<Exiting>>>>>>>");
-//                        return;}
-//                    default:{
-//                        System.out.println("Invalid Input try again");
-//                    }
-//                }
-//            }
-//        } catch (Exception e) {
-//            System.out.println("Error at main menu " + e);
-//        }
-
         while(running){
             Users = userDao.getAll();
             Accounts = accountDao.getAll();
@@ -104,8 +35,6 @@ public class CliMenuHandler {
 
             chosenOption.getAction().execute(input);
         }
-
-
 
     }
 
@@ -448,7 +377,7 @@ public class CliMenuHandler {
                         break;
                     }
                     case 3:{
-                        if (acc.transferable()) {
+                        if (!acc.getAccountType().equalsIgnoreCase(ACCTYPE.FIXED.name())) {
                             System.out.println("Enter the amount");
                             amount = input.nextDouble();
                             input.nextLine();
@@ -489,13 +418,17 @@ public class CliMenuHandler {
                             accNo = input.nextInt();
                             input.nextLine();
 
-                            System.out.println("Enter the amount");
-                            amount = input.nextDouble();
-                            input.nextLine();
+                            if(!Accounts.get(accNo).getAccountType().equalsIgnoreCase(ACCTYPE.FIXED.name())){
+                                System.out.println("Enter the amount");
+                                amount = input.nextDouble();
+                                input.nextLine();
 
-                            acc.transfer(accNo, amount, Accounts);
-                            accountDao.update(acc);
-                            accountDao.update(Accounts.get(accNo));
+                                acc.transfer(accNo, amount, Accounts);
+                                accountDao.update(acc);
+                                accountDao.update(Accounts.get(accNo));
+                            }else {
+                                System.out.println("Given account is not transferable ");
+                            }
 
                         }else{
                             System.out.println("Sorry Transfer option is not available for this account ");
@@ -574,6 +507,7 @@ public class CliMenuHandler {
                         temp.details();
                         if(temp.balance()>0){
                             System.out.println("Account is funded please withdraw or transfer to delete the account");
+                            break;
                         }
                         System.out.println("Do you wish to delete this account? (yes/no)");
 

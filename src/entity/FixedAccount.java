@@ -41,6 +41,9 @@ public class FixedAccount implements Account{
 
 
     public void setCreated_at(String created_at) {
+        if(created_at == null){
+            return;
+        }
         DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
         this.created_at = LocalDateTime.parse(created_at,formatter);
     }
@@ -60,10 +63,12 @@ public class FixedAccount implements Account{
 
     public void addingInterest(){
 
-        Duration duration = Duration.between(created_at,LocalDateTime.now());
-        double hourlyRate = (this.interestRate/7/100)/24.0;
+      if(created_at != null){
+            Duration duration = Duration.between(created_at, LocalDateTime.now());
+            double hourlyRate = (this.interestRate / 7 / 100) / 24.0;
 
-        this.addedInterest = this.balance *hourlyRate*duration.toHours();
+            this.addedInterest = this.balance * hourlyRate * duration.toHours();
+        }
     }
 
     @Override

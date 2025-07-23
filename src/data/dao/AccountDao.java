@@ -107,7 +107,7 @@ public class AccountDao implements Dao<Account,Integer> {
             }
             DatabaseUtils.handleSQLexception("AccountDao.update",e,LOGGER);
         }
-        return this.getOne(entity.getAccNo()).get();
+        return null;
 
     }
 
