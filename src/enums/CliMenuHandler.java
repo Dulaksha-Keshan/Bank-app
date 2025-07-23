@@ -1,3 +1,5 @@
+package enums;
+
 import com.password4j.Argon2Function;
 import com.password4j.Hash;
 import com.password4j.Password;
@@ -6,15 +8,16 @@ import data.dao.AccountDao;
 import data.dao.UserDao;
 import entity.*;
 import entity.records.PasswordRecord;
-import enums.GENDER;
 
 import java.util.HashMap;
 import java.util.InputMismatchException;
 import java.util.Map;
 import java.util.Scanner;
 
-public class Main {
+public class CliMenuHandler {
     static Scanner input = new Scanner(System.in);
+    static boolean running = true;
+
     static Map <Long, User> Users = new HashMap<>();
     static Map<Integer, Account> Accounts = new HashMap<>();
     static UserDao userDao = new UserDao();
@@ -22,74 +25,92 @@ public class Main {
 
     public static void main(String[] args) {
 
-        try {
-            while (true) {
-                Accounts = accountDao.getAll();
-                Users = userDao.getAll();
-                System.out.printf("%n************************%nWelcome to the Banking app%n************************%n");
-                System.out.println("1.Register to a new account ");
-                System.out.println("2.Log in if an existing user ");
-                System.out.println("3.Log in to existing account directly");
-                System.out.println("0.Exit");
-                String ans = input.nextLine().strip();
-                switch (ans){
-                    case "1":{
-                        registration();
-                        break;
-                    }
-                    case "2":{
-                        System.out.println("Enter the National Id ");
-                        Long id = input.nextLong();
-                        input.nextLine();
+//        try {
+//            while (true) {
+//                Accounts = accountDao.getAll();
+//                Users = userDao.getAll();
+//                System.out.printf("%n************************%nWelcome to the Banking app%n************************%n");
+//                System.out.println("1.Register to a new account ");
+//                System.out.println("2.Log in if an existing user ");
+//                System.out.println("3.Log in to existing account directly");
+//                System.out.println("0.Exit");
+//                String ans = input.nextLine().strip();
+//                switch (ans){
+//                    case "1":{
+//                        registration();
+//                        break;
+//                    }
+//                    case "2":{
+//                        System.out.println("Enter the National Id ");
+//                        Long id = input.nextLong();
+//                        input.nextLine();
+//
+//                        if(Users.isEmpty() || !Users.containsKey(id)){
+//                            System.out.println("User does not exist or invalid National ID");
+//                            break;
+//                        }
+//
+//                        System.out.println("Confirm Name(Yes?No)");
+//                        String name = Users.get(id).getName();
+//                        System.out.println(name);
+//
+//                        if (input.nextLine().strip().equalsIgnoreCase("yes")){
+//                            System.out.printf("%n%nWelcome Back %5s%n",name);
+//                            System.out.println("Enter Your password :");
+//                            String enteredPass = input.nextLine();
+//                            try {
+//                                PasswordRecord passwordRecord = userDao.retrieveHash(id);
+//
+//
+//                                boolean isVerified = verifyLogging(enteredPass,passwordRecord.hash());
+//
+//                                if (isVerified){
+//                                    userLoggedIn(id,name);
+//                                }else {
+//                                    System.out.println("Invalid Password ");
+//                                }
+//                            }catch (Exception e){
+//                                System.out.println("Error at user verification " + e.getMessage());
+//                            }
+//
+//                        } else{
+//                            System.out.println("User is not found or invalid input");
+//                        }
+//                        break;
+//                    }
+//                    case "3":{
+//                        loggingIn();
+//                        break;
+//                    }
+//                    case "0":{
+//                        System.out.println("<<<<<<<Exiting>>>>>>>");
+//                        return;}
+//                    default:{
+//                        System.out.println("Invalid Input try again");
+//                    }
+//                }
+//            }
+//        } catch (Exception e) {
+//            System.out.println("Error at main menu " + e);
+//        }
 
-                        if(Users.isEmpty() || !Users.containsKey(id)){
-                            System.out.println("User does not exist or invalid National ID");
-                            break;
-                        }
+        while(running){
+            Users = userDao.getAll();
+            Accounts = accountDao.getAll();
+            MainMenuOption.printMenu();
+            String ans = input.nextLine().trim();
 
-                        System.out.println("Confirm Name(Yes?No)");
-                        String name = Users.get(id).getName();
-                        System.out.println(name);
+            MainMenuOption chosenOption = MainMenuOption.fromCode(ans).orElse(MainMenuOption.INVALID);
 
-                        if (input.nextLine().strip().equalsIgnoreCase("yes")){
-                            System.out.printf("%n%nWelcome Back %5s%n",name);
-                            System.out.println("Enter Your password :");
-                            String enteredPass = input.nextLine();
-                            try {
-                                PasswordRecord passwordRecord = userDao.retrieveHash(id);
-
-
-                                boolean isVerified = verifyLogging(enteredPass,passwordRecord.hash());
-
-                                if (isVerified){
-                                    userLoggedIn(id,name);
-                                }else {
-                                    System.out.println("Invalid Password ");
-                                }
-                            }catch (Exception e){
-                                System.out.println("Error at user verification " + e.getMessage());
-                            }
-
-                        } else{
-                            System.out.println("User is not found or invalid input");
-                        }
-                        break;
-                    }
-                    case "3":{
-                        loggingIn();
-                        break;
-                    } case "0":
-                        System.out.println("<<<<<<<Exiting>>>>>>>");
-                        return;
-                    default:{
-                        System.out.println("Invalid Input try again");
-                    }
-                }
-            }
-        } catch (Exception e) {
-            System.out.println("Error at main menu " + e);
+            chosenOption.getAction().execute(input);
         }
 
+
+
+    }
+
+    public static void setRunning(boolean status) {
+        running = status;
     }
 
     public static void registration (){
@@ -111,14 +132,15 @@ public class Main {
         userDao.create(newUser);
 
         while (true){
+
             System.out.println("Enter a password");
             String rawPass = input.nextLine().strip();
             System.out.println("Confirm the password");
             String conf = input.nextLine().strip();
+
             if (rawPass.equals(conf)&& !rawPass.isBlank()){
 
                 PasswordRecord passwordRecord = hashCred(rawPass);
-
 
                 userDao.storePass(passwordRecord.hash(),id);
                 break;
@@ -550,6 +572,9 @@ public class Main {
                         Account temp = Accounts.get(input.nextInt());
                         input.nextLine();
                         temp.details();
+                        if(temp.balance()>0){
+                            System.out.println("Account is funded please withdraw or transfer to delete the account");
+                        }
                         System.out.println("Do you wish to delete this account? (yes/no)");
 
                         String dConf = input.nextLine().strip();
@@ -560,8 +585,9 @@ public class Main {
                         }else if (dConf.equalsIgnoreCase("no")){
                             break;
                         }else {
-                            System.out.println("Invalid Account balance or invalid input");
+                            System.out.println(" invalid input");
                         }
+
                         System.out.println("Do you wish to perform another service ? (Y/N)");
                         String cont = input.nextLine().strip().toLowerCase();
                         if (cont.equals("n")) {
@@ -605,6 +631,44 @@ public class Main {
         }while (true);
     }
 
+    public static void loginUser(){
+        System.out.println("Enter the National Id ");
+        Long id = input.nextLong();
+        input.nextLine();
+
+        if(Users.isEmpty() || !Users.containsKey(id)){
+            System.out.println("User does not exist or invalid National ID");
+            return;
+        }
+
+        System.out.println("Confirm Name(Yes?No)");
+        String name = Users.get(id).getName();
+        System.out.println(name);
+
+        if (input.nextLine().strip().equalsIgnoreCase("yes")){
+            System.out.printf("%n%nWelcome Back %5s%n",name);
+            System.out.println("Enter Your password :");
+            String enteredPass = input.nextLine();
+            try {
+                PasswordRecord passwordRecord = userDao.retrieveHash(id);
+
+
+                boolean isVerified = verifyLogging(enteredPass,passwordRecord.hash());
+
+                if (isVerified){
+                    userLoggedIn(id,name);
+                }else {
+                    System.out.println("Invalid Password ");
+                }
+            }catch (Exception e){
+                System.out.println("Error at user verification " + e.getMessage());
+            }
+
+        } else{
+            System.out.println("User is not found or invalid input");
+        }
+    }
+
     public static PasswordRecord hashCred(String rawPass ){
         String hashed;
 
@@ -613,8 +677,6 @@ public class Main {
         Hash hash = Password.hash(rawPass).with(argon2Function);
 
         hashed = hash.getResult();
-//
-
 
         return new PasswordRecord(hashed);
 
