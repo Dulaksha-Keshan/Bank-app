@@ -1,7 +1,6 @@
 package entity;
 
 import enums.ACCTYPE;
-
 import java.time.Duration;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
@@ -16,7 +15,6 @@ public class ChildAccount implements Account{
     private double balance;
     private final ACCTYPE acctype = ACCTYPE.CHILD;
     private LocalDateTime created_at;
-    private float interestRate;
     private double addedInterest;
 
 
@@ -45,18 +43,24 @@ public class ChildAccount implements Account{
         this.created_at = LocalDateTime.parse(created_at,formatter);
     }
     public void addingInterest(){
+        if(created_at != null){
+            Duration duration = Duration.between(created_at, LocalDateTime.now());
+            float interestRate = 3f;
+            double hourlyRate = (interestRate / 7 / 100) / 24.0;
 
-        Duration duration = Duration.between(created_at,LocalDateTime.now());
-        double hourlyRate = (this.interestRate/7/100)/24.0;
-
-        this.addedInterest = this.balance *hourlyRate*duration.toHours();
+            this.addedInterest = this.balance * hourlyRate * duration.toHours();
+        }
     }
 
     @Override
     public void details() {
+        addingInterest();
         System.out.printf("Account No: %d%nChild Name : %s%nGuardian name : %s%nNational ID No : %s%nAccount Type : %s%nBalance : %.2f %n",
                 this.accNo,this.name,this.guardianName,this.guardianNationalId,this.acctype,this.balance);
-
+        if(created_at !=null){
+            System.out.printf("Account Created At : %tY-%tm-%td%n",
+                    this.created_at, this.created_at, this.created_at);
+        }
     }
 
     @Override
@@ -81,7 +85,8 @@ public class ChildAccount implements Account{
 
     @Override
     public double balance() {
-        return this.balance;
+        addingInterest();
+        return this.balance + this.addedInterest;
     }
 
     @Override

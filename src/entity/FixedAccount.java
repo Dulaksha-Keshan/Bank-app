@@ -54,8 +54,7 @@ public class FixedAccount implements Account{
         System.out.printf("Account No: %d%nAccount Name : %s%nNational ID No : %s%nAccount Type : %s%nBalance : %.2f %nInitial deposit  : %.2f%nIntrest Rate(weekly) : %.1f%n",
                 this.accNo,this.name,this.nationalId,this.acctype,(this.balance +this.addedInterest),this.balance,this.interestRate);
         if(created_at !=null){
-            System.out.printf("Account Created At : %tY-%tm-%td %tH:%tM:%tS%n",
-                    this.created_at, this.created_at, this.created_at,
+            System.out.printf("Account Created At : %tY-%tm-%td%n",
                     this.created_at, this.created_at, this.created_at);
         }
 
