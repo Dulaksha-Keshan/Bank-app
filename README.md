@@ -99,8 +99,7 @@ After exploring this project, you'll understand:
 ```
 Account (Super Class)
 ├── SavingsAccount (Sub Class)
-├── CheckingAccount (Sub Class)
-    └── Transaction (Association)
+├── CheckingAccount (Sub Class) 
 ```
 
 
