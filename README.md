@@ -40,9 +40,6 @@ This project showcases fundamental OOP concepts through a practical banking appl
 
 ## Getting Started
 
-### Prerequisites
-- Java 8 or higher
-- Any Java IDE or text editor
 
 ### How to Run
 
@@ -100,10 +97,9 @@ After exploring this project, you'll understand:
 ## Class Relationships
 
 ```
-Account (Abstract Class)
-├── SavingsAccount (Concrete Class)
-├── CheckingAccount (Concrete Class)
-└── User (Composition)
+Account (Super Class)
+├── SavingsAccount (Sub Class)
+├── CheckingAccount (Sub Class)
     └── Transaction (Association)
 ```
 
@@ -132,4 +128,4 @@ Feel free to fork this project and add more features like:
 
 ---
 
-*Built to demonstrate the power and elegance of Object-Oriented Programming in Java* 📚
+*Built to demonstrate the power and elegance of Object-Oriented Programming through Java* 
